@@ -1,7 +1,7 @@
 # Table of contents
 
 * [前言](README.md)
-* [Lecture1&2](lecture1-and-2.md)
+* [Lecture1&2：Intro to ML/DL](lecture1-and-2-intro-to-ml-dl.md)
 * [Lecture 3：卷积神经网络（CNN）](lecture-3-juan-ji-shen-jing-wang-luo-cnn.md)
 * [Lecture 4：自注意力机制（Self-Attention）](lecture-4-zi-zhu-yi-li-ji-zhi-selfattention.md)
 * [Lecture 5：Transformer](lecture-5-transformer.md)

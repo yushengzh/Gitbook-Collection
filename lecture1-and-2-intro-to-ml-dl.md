@@ -1,4 +1,4 @@
-# Lecture1&2
+# Lecture1&2：Intro to ML/DL
 
 > Lectured by HUNG-YI LEE (李宏毅) Recorded by Yusheng zhao（yszhao0717@gmail.com）
 
