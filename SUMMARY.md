@@ -14,5 +14,3 @@
 * [Lecture 12：领域自适应（Domain Adaptation）概述](lecture-12-ling-yu-zi-shi-ying-domain-adaptation-gai-shu.md)
 * [Lecture 13：Compression：神经网络压缩](lecture-13compression-shen-jing-wang-luo-ya-suo.md)
 * [Lecture 14：元学习（Meta Learning）](lecture-14-yuan-xue-xi-meta-learning.md)
-* [ML笔记(Lecture1&2)](ml-bi-ji-lecture12-1.md)
-* [ML笔记(Lecture1&2)](ml-bi-ji-lecture12-2.md)

@@ -1,3 +1,7 @@
+---
+layout: editorial
+---
+
 # Lecture 3：卷积神经网络（CNN）
 
 #### Lecture 3：卷积神经网络（CNN） <a href="#lecture3-juan-ji-shen-jing-wang-luo-cnn" id="lecture3-juan-ji-shen-jing-wang-luo-cnn"></a>
