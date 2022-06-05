@@ -1,8 +1,10 @@
 # Lecture 7 自监督学习
 
-> Lectured by HUNG-YI LEE (李宏毅) Recor-ded by Yusheng zhao（[yszhao0717@gmail.com](mailto:yszhao0717@gmail.com)）
+> Lectured by HUNG-YI LEE (李宏毅) Recor-ded by Yusheng zhao（yszhao0717@gmail.com）
 
 ***
+
+\[TOC]
 
 ***
 
@@ -14,11 +16,11 @@
 > * Big Bird（Transformers for Longer Sequence）
 > * Cookie Monster
 
-**什么是self-supervised learning（自监督学习）**
+### 什么是self-supervised learning（自监督学习）
 
 _Supervised_：需要成对的数据，资料（文章/图像）和labels
 
-_Self-supervised_：资料没有labels，想办法把资料分为两部分，一部分作为模型的输入，另一部分作为模型的标注。把输入到模型中，输出，再与进行比对。_self-supervised_的方法可以看作是_unsupervised_的（对应的超集）
+_Self-supervised_：资料没有labels，想办法把资料$x$分为两部分，一部分$x'$作为模型的输入，另一部分$x''$作为模型的标注。把$x'$输入到模型中，输出$y$，再与$x''$进行比对。_self-supervised_的方法可以看作是_unsupervised_的（对应的超集）
 
 ![](https://s1.328888.xyz/2022/05/03/hHD61.png)
 
@@ -28,7 +30,7 @@ _Self-supervised_：资料没有labels，想办法把资料分为两部分，一
 
 ***
 
-#### BERT <a href="#bert" id="bert"></a>
+## BERT
 
 > Bert很大，有340M个参数（parameters）
 >
@@ -36,7 +38,7 @@ _Self-supervised_：资料没有labels，想办法把资料分为两部分，一
 >
 > 目前的趋势：模型的规模越来越大，参数越来越多
 >
-> ELMo（94M） BERT（340M） GPT-2（1542M） Megatron（8B） T5（11B） Turing NLG（17B） **GPT-3**（比Turing NLG大10倍！！） [Switch Transformers](https://arxiv.org/abs/2101.03961)（1.6T）
+> ELMo（94M）$\rightarrow$ BERT（340M）$\rightarrow$ GPT-2（1542M）$\rightarrow$ Megatron（8B）$\rightarrow$ T5（11B）$\rightarrow$ Turing NLG（17B）$\rightarrow$ **GPT-3**（比Turing NLG大10倍！！）$\rightarrow$ [Switch Transformers](https://arxiv.org/abs/2101.03961)（1.6T）
 
 **BERT**是一个“Transformer-Encoder”的形式
 
@@ -44,7 +46,7 @@ _Self-supervised_：资料没有labels，想办法把资料分为两部分，一
 
 能做的事情就是输入一排向量然后输出一排向量，BERT通常使用在NLP任务以及文字处理等等。文字、语音、甚至是图像都可以看作是一个sequence
 
-**Masking Input（Masked token prediction）**
+#### Masking Input（Masked token prediction）
 
 对于BERT的输入，以一串文字为例，随机把其中一些的character掩盖住（Randomly masking some tokens）。所谓的“盖住”有两种方式：1、把某些字换成特殊的符号（MASK【special token】）；2、随机把把某个字换成另外的字（Random）
 
@@ -52,13 +54,13 @@ _Self-supervised_：资料没有labels，想办法把资料分为两部分，一
 
 > token是处理一段文字的单位，它的尺度和大小由自己决定（比如中文中就是一个汉字（character），在英文单词中就是一个字母（1/26））
 
-盖住部分所对应的输出向量，做一个Linear的transform（乘一个矩阵），然后再做一个，得到一个输出，输出一个分布——预测任务。（这部分和Transformer是差不多的）
+盖住部分所对应的输出向量，做一个Linear的transform（乘一个矩阵），然后再做一个$softmax$，得到一个输出，输出一个分布——预测任务。（这部分和Transformer是差不多的）
 
 ![](https://s1.328888.xyz/2022/05/03/hH5bO.png)
 
 BERT学习的目标就是掩盖住的token要学习的输出（预测）应该和对应的ground truth越接近越好，近似于做一个分类任务（class数量和token数量一致）。所以最后的步骤中涉及到了minimize cross entropy
 
-**Next Sentence Prediction**
+#### Next Sentence Prediction
 
 ![](https://s1.328888.xyz/2022/05/03/hHCdP.png)
 
@@ -68,7 +70,7 @@ BERT学习的目标就是掩盖住的token要学习的输出（预测）应该�
 
 另外一招（文献上似乎比Next Sentence Prediction有用）：[SOP: Sentence order predictionUsed in ALBERT](https://arxiv.org/abs/1909.11942)。它的方法：把两个sentence连一块（调换顺序），让BERT判断哪一个最佳。
 
-**Pre-training**
+### ==Pre-training==
 
 上述的BERT主要讲了两方面的应用：
 
@@ -83,11 +85,11 @@ BERT学习的目标就是掩盖住的token要学习的输出（预测）应该�
 
 奇妙地比喻：像是胚胎里的干细胞，给一点特别的刺激（有标注的资料），就可以“分化”显著的完成各式各样的任务，**BERT分化成各式各样的任务**被称之为**Fine-tune**。而在Fine-tune之前，产生BERT的过程被称之为**Pre-train**。
 
-**测试BERT能力的任务集：GLUE**
+#### 测试BERT能力的任务集：GLUE
 
-> 标杆：General Language Understanding Evaluation (GLUE)[https://gluebenchmark.com/GLUE](https://gluebenchmark.com/GLUE)
+> 标杆：General Language Understanding Evaluation (GLUE)https://gluebenchmark.com/GLUE
 >
-> GLUE also has Chinese version ([https://www.cluebenchmarks.com/](https://www.cluebenchmarks.com/))
+> GLUE also has Chinese version (https://www.cluebenchmarks.com/)
 
 GLUE总共有九个任务，为了测试BERT模型的能力，拢共建立九个模型，每个模型测试完平均一下得到一个数值——代表了self-supervised model的好坏。
 
@@ -103,9 +105,9 @@ GLUE总共有九个任务，为了测试BERT模型的能力，拢共建立九个
 
 E.g.![](https://s1.328888.xyz/2022/05/03/hH0PA.png)
 
-**How to use BERT**
+### How to use BERT
 
-**case 1**
+#### case 1
 
 > Input：sequence
 >
@@ -119,15 +121,15 @@ Linear的参数是随机初始化的，而BERT的参数是来自已经学会了�
 
 > **Pre-training v.s. Random Initiation**
 >
-> （fine-tune）---（scratch），下图来自[https://arxiv.org/abs/1908.05620](https://arxiv.org/abs/1908.05620)
+> （fine-tune）---（scratch），下图来自https://arxiv.org/abs/1908.05620
 >
-> <img src="https://s1.328888.xyz/2022/05/03/hHIYR.png" alt="" data-size="original">
+> ![](https://s1.328888.xyz/2022/05/03/hHIYR.png)
 >
 > 由上图，scratch的loss曲面下降的比较慢。
 
 我们可以认为这时候的（带有pre-training）BERT既是unsupervised的也是semi-supervised。当BERT是学做填空题的阶段时是unsupervised的，而当BERT用在下游任务（downstream tasks）上时，由于存在大量无标注资料且存在少量有标注资料，则属于semi-supervised，上述pre-training+fine tune合起来就是semi-supervised。
 
-**case 2**
+#### case 2
 
 > Input：sequence
 >
@@ -135,13 +137,13 @@ Linear的参数是随机初始化的，而BERT的参数是来自已经学会了�
 >
 > E.g. 词性标注（POS tagging）![](https://s1.328888.xyz/2022/05/03/hHRMi.png)
 
-给BERT输入一个句子，句子里成分（token）对应的每一个向量，分别做一个Linear的transform，再过，最后分类到一个class。和一般的分类问题相同：我们仍需要一些已有标注的资料——唯一不同的是在BERT的encoder部分其参数不是随机初始化的，而是从pre-train（找到一组表现较好的参数）中继承而来。
+给BERT输入一个句子，句子里成分（token）对应的每一个向量，分别做一个Linear的transform，再过$softmax$，最后分类到一个class。和一般的分类问题相同：我们仍需要一些已有标注的资料——唯一不同的是在BERT的encoder部分其参数不是随机初始化的，而是从pre-train（找到一组表现较好的参数）中继承而来。
 
 ![](https://s1.328888.xyz/2022/05/03/hHTXv.png)
 
 上述例子都是文字任务，事实上我们也可以用在语音任务、影像任务等，把影响或语音看作是一排向量
 
-**case 3**
+#### case 3
 
 > Input：two sequences
 >
@@ -153,27 +155,25 @@ Linear的参数是随机初始化的，而BERT的参数是来自已经学会了�
 
 ![](https://s1.328888.xyz/2022/05/03/hHcp0.png)
 
-只取CLS\[Classification]的部分的代表向量，做transform-->-->分类，判断这两个句子是否矛盾。
+只取CLS\[Classification]的部分的代表向量，做transform-->$softmax$-->分类，判断这两个句子是否矛盾。
 
-**case 4**
+#### case 4
 
 > 非开放的问答系统：Extraction-based Question Answering（QA）——问题的答案包含在文章中
 >
-> _**Document**_: _**Query**_：
+> _**Document**_:$D = {d\_1,d\_2,...,d\_N}$ _**Query**_：$Q = {q\_1,q\_2,...,q\_M}$
 >
-> <img src="https://s1.328888.xyz/2022/05/03/hHmFJ.png" alt="" data-size="original">
+> ![](https://s1.328888.xyz/2022/05/03/hHmFJ.png)
 >
 > 输出两个正整数，代表答案所在的字符index范围（s:start；e:end）
 >
-> _**Answer**_：
+> _**Answer**_：$A = {d\_s,...,d\_e}$
 
-![](https://s1.328888.xyz/2022/05/04/hlbU2.png)
-
-![](https://s1.328888.xyz/2022/05/04/hlFHM.png)
+![](https://s1.328888.xyz/2022/05/04/hlbU2.png) ![](https://s1.328888.xyz/2022/05/04/hlFHM.png)
 
 document：读文章；question：看问题。\[CLS]和\[SEP]的token和一般的BERT一样
 
-需要随机初始化只有两个向量，这两个向量的长度和BERT输出的长度是一样的，其中橘色代表答案开始的位置，蓝色代表答案结束的位置。先把橘色的拿出来和文章对应的单位（token）做一个inner product；算出数值-->过看哪里分数最高，那么s（起始位置）就是这个位置的编号；同理，蓝色的向量也拿出来和文章对应的单位（token）做一个inner product；算出数值-->过看哪里分数最高，那么e（终止位置）就是这个位置的编号。
+需要随机初始化只有两个向量，这两个向量的长度和BERT输出的长度是一样的，其中橘色代表答案开始的位置，蓝色代表答案结束的位置。先把橘色的拿出来和文章对应的单位（token）做一个inner product；算出数值-->过$softmax$看哪里分数最高，那么s（起始位置）就是这个位置的编号；同理，蓝色的向量也拿出来和文章对应的单位（token）做一个inner product；算出数值-->过$softmax$看哪里分数最高，那么e（终止位置）就是这个位置的编号。
 
 为了训练这个模型，我们也需要训练资料。BERT理论上没有输入长度的限制，实作上有限制，所以需要把整篇文章拆成小部分分别做任务。
 
@@ -183,7 +183,7 @@ document：读文章；question：看问题。\[CLS]和\[SEP]的token和一般�
 
 ***
 
-**Pre-training a seq2seq model**
+### Pre-training a seq2seq model
 
 ![](https://s1.328888.xyz/2022/05/04/hlnkT.png)
 
@@ -198,7 +198,7 @@ document：读文章；question：看问题。\[CLS]和\[SEP]的token和一般�
 
 ***
 
-**Why does BERT work？**
+### Why does BERT work？
 
 以文字处理为例，以一排文字输入BERT，产生出一排向量（称之为**embedding**），每个这样的向量代表着对应的文字序列的单位token。如果我们把每个embedding向量计算两两之间的距离，我们会发现意思越相近的字（token）代表的embedding距离越小（越靠近）
 
@@ -210,11 +210,11 @@ document：读文章；question：看问题。\[CLS]和\[SEP]的token和一般�
 
 ![image-20211012150342517](https://s1.328888.xyz/2022/05/04/hl67C.png) ![image-20211012150411970](https://s1.328888.xyz/2022/05/04/hlMjg.png)
 
-相似度图中，偏黄色值较大（表明相似度较大），所以BERT处理后的embedding vector相似度表达了原有输入字符（含义）的相似度。一个词汇的意思可以从上下文推断出来，而BERT所做的事情就是抽取每个token上下文的资讯：举个栗子——如下图，把掩盖起来，让BERT完成预测的任务，而依靠的资讯就是被掩盖的一定范围内上下文的信息。
+相似度图中，偏黄色值较大（表明相似度较大），所以BERT处理后的embedding vector相似度表达了原有输入字符（含义）的相似度。一个词汇的意思可以从上下文推断出来，而BERT所做的事情就是抽取每个token上下文的资讯：举个栗子——如下图，把$w\_2$掩盖起来，让BERT完成预测$w\_2$的任务，而依靠的资讯就是被掩盖的$w\_2$一定范围内上下文的信息。
 
 ![image-20211014193210638](https://s1.328888.xyz/2022/05/04/hlS91.png)
 
-我们可以认为BERT就是一个self-attention的集合体，通过训练得到好的参数后，就可以用上下文来表示词单位的信息，这个就是**representation（文本表示）**。这样的想法，在BERT之前就有了——**Word embedding（词嵌入）**中的一个技术**CBOW**
+我们可以认为BERT就是一个self-attention的集合体，通过训练得到好的参数后，就可以用上下文来表示词单位的信息，这个就是**representation（文本表示）**。这样的想法，在BERT之前就有了——**Word embedding（词嵌入）中的一个技术CBOW**
 
 ![image-20211014194553117](https://s1.328888.xyz/2022/05/04/hloWt.png)
 
@@ -222,21 +222,21 @@ document：读文章；question：看问题。\[CLS]和\[SEP]的token和一般�
 
 所以这个想法认为BERT是CBOW的一个“进阶版”，因此BERT从文本信息中抽取出来的向量（embeddings）又称之为**Contextualized word embedding**。
 
-> 另外一个关于BERT的想法来自于李宏毅老师介绍学生的一项“莫名其妙”的工作：[https://arxiv.org/abs/2103.07162](https://arxiv.org/abs/2103.07162)
+> 另外一个关于BERT的想法来自于李宏毅老师介绍学生的一项“莫名其妙”的工作：https://arxiv.org/abs/2103.07162
 >
 > 这个工作介绍一个把BERT应用在蛋白质、DNA的分类任务上。由于DNA由脱氧核苷酸（A、G、C、T）双螺旋组成，把AGCT分别对应到任意的四个英语词汇，将这个句子sequence输入进BERT，然后如上述我们讲的做一个文本分类任务（有木有感觉xjb做？？？），然而得到了很好的实验结果。
 >
-> <img src="https://s1.328888.xyz/2022/05/04/hlBne.png" alt="image-20211014200617436" data-size="original">
+> ![image-20211014200617436](https://s1.328888.xyz/2022/05/04/hlBne.png)
 >
 > 实验结果👇
 >
-> <img src="https://s1.328888.xyz/2022/05/04/hlPUO.png" alt="image-20211014200645283" data-size="original">
+> ![image-20211014200645283](https://s1.328888.xyz/2022/05/04/hlPUO.png)
 
 BERT到底为什么会好？这里面有很多值得研究探讨的问题。这里面给与BERT完全乱七八糟的文字（譬如DNA所映射的），但是BERT却得到比较不错的分类结果，说明BERT不单单是能够对于文字的含义有一定理解，还有其他因素存在。
 
 还有许许多多模型莫名其妙的work了...但是为什么？还需要我们追寻...
 
-**Multi-lingual BERT（多语言BERT）**
+### Multi-lingual BERT（多语言BERT）
 
 > ——Training a BERT model by many different languages
 >
@@ -254,31 +254,31 @@ BERT到底为什么会好？这里面有很多值得研究探讨的问题。这�
 
 只要数据多，算力够，大力出奇迹！
 
-一个可能是解决Unsupervised token-level translation的思路。具体见老师PPT和学生文章：[https://arxiv.org/abs/2010.10041](https://arxiv.org/abs/2010.10041)
+一个可能是解决Unsupervised token-level translation的思路。具体见老师PPT和学生文章：https://arxiv.org/abs/2010.10041
 
-#### GPT <a href="#gpt" id="gpt"></a>
+## GPT
 
 > 和BERT不同，GPT的任务是预测接下来会出现的Token（Predict Next Token）
 
-E.g.给GPT model一个token，然后模型处理得到一个embedding记为，然后模型用这个embedding来预测下一个token是什么
+E.g.给GPT model一个token，然后模型处理得到一个embedding记为$h$，然后模型用这个embedding来预测下一个token是什么
 
 ![image-20211017191140145](https://s1.328888.xyz/2022/05/04/htUom.png)
 
-通过得到一个distribution，然后做交叉熵。
+通过$softmax$得到一个distribution，然后做交叉熵。
 
 GPT具备“生成”的能力；比方说，输入一个残缺的句子/文章，让富有“想象力”的GPT把其余的部分补完。GPT用的想法和BERT不太一样，但是它也可以用和BERT一样的方式。
 
 经过pre-train后的BERT，我们使用者只需要做一些微调（fine-tune）即可。
 
-**Few-shot Learning**
+### Few-shot Learning
 
 > no gradient descent
 
-**One-shot Learning**
+### One-shot Learning
 
-**Zero-shot Learning**
+### Zero-shot Learning
 
-#### Self-supervised Learning for application beyond Text <a href="#self-supervised-learning-for-application-beyond-text" id="self-supervised-learning-for-application-beyond-text"></a>
+## Self-supervised Learning for application beyond Text
 
 > 发展过程如下，如果感兴趣自行了解细节
 
@@ -286,32 +286,32 @@ GPT具备“生成”的能力；比方说，输入一个残缺的句子/文章�
 
 *   SimCLR
 
-    > [https://arxiv.org/abs/2002.05709](https://arxiv.org/abs/2002.05709)
+    > https://arxiv.org/abs/2002.05709
     >
-    > [https://github.com/google-research/simclr](https://github.com/google-research/simclr)
+    > https://github.com/google-research/simclr
 *   BYOL
 
     Bootstrap your own latent: A new approach to self-supervised Learning
 
-    > [https://arxiv.org/abs/2006.07733](https://arxiv.org/abs/2006.07733)
+    > https://arxiv.org/abs/2006.07733
 
 ![image-20211018171823908](https://s1.328888.xyz/2022/05/04/hty7S.png)
 
 ***
 
-#### Auto-Encoder <a href="#auto-encoder" id="auto-encoder"></a>
+## Auto-Encoder
 
 Auto-Encoder也可以看作是self-supervised learning的一环。
 
 > 从self supervised learning的框架说起——Auto-Encoder的前世今生
 >
 > * 大量的没有标注（label）的资料（data）
-> *   用这些资料训练一个模型，发明一些不需要标注资料的任务，e.g.做填空题（BERT）、预测下一个token（GPT）等等。用这些任务来给模型进行学习，这样的学习就叫做自监督学习（有人也称之为**pre-train**），这样子得到的预训练模型经过**微调（fine tune）**就可以用于其他**下游任务（downstream task）**中。
+> *   用这些资料训练一个模型，发明一些不需要标注资料的任务，e.g.做填空题（BERT）、预测下一个token（GPT）等等。用这些任务来给模型进行学习，这样的学习就叫做自监督学习（有人也称之为**pre-train**），这样子得到的预训练模型经过\*\*微调（fine tune）**就可以用于其他**下游任务（downstream task）\*\*中。
 >
->     <img src="https://s1.328888.xyz/2022/05/04/ht9Ji.png" alt="image-20220322130154797" data-size="original">
+>     ![image-20220322130154797](https://s1.328888.xyz/2022/05/04/ht9Ji.png)
 > * 在有预训练（自监督学习）出现之前，存在的更古老的无需标注资料的学习任务，称之为**Auto-encoder**，（老师觉得）auto-encoder也可以看作是自监督学习的pre-train的一种方法。
 
-**Auto-encoder 如何运作？**
+### Auto-encoder 如何运作？
 
 * 大量的未标记的训练资料（课程以图像为例）
 * 两个network：**Encoder**和**Decoder**
@@ -325,20 +325,20 @@ Auto-Encoder也可以看作是self-supervised learning的一环。
 * 以上这个过程，有人也称之为reconstruction（重建）。和Cycle GAN思路几乎一模一样。
 * Encoder的输出（vector）有时候我们叫它Embedding或是Representation或是code。
 
-**Auto-encoder如何用于下游任务？**
+#### Auto-encoder如何用于下游任务？
 
 *   输入的图片可以看作是一个很长的vector，Encoder的作用：降维（Dimension Reduction）、压缩为低维度的向量。
 
     > 降维（Dimension Reduction）技术：（not nased ML）PCA、t-SNE
 * 得到Encoder的特征提取，Embedding会是一个low dim vector；由于输出图像也是一个高维向量。所以embedding这部分也被称之为bottleneck。
 
-**WHY Auto-encoder？**
+#### WHY Auto-encoder？
 
 > 引子——神雕侠侣：杨过和樊一翁
 
-auto-encoder所做的就是把一张图片压缩然后又还原回来。思考这样一个问题：以一张图片（9个数值）为例，如果encoder将该图片压缩到2维（两个数值），那么decoder如何从2维的low dim embedding中还原出的输出图像？
+auto-encoder所做的就是把一张图片压缩然后又还原回来。思考这样一个问题：以一张$3 \times 3$图片（9个数值）为例，如果encoder将该图片压缩到2维（两个数值），那么decoder如何从2维的low dim embedding中还原出$3 \times 3$的输出图像？
 
-原因在于：图片的变化/特征是有限的表达的，对于的9个数值，并不是所有数据都表征了该图片。
+原因在于：图片的变化/特征是有限的表达的，对于$3 \times 3$的9个数值，并不是所有数据都表征了该图片。
 
 ![image-20220322163148742](https://s1.328888.xyz/2022/05/04/htLn0.png)
 
@@ -348,20 +348,20 @@ Encoder做到了化繁为简，找出复杂的东西（本质的）有限的变�
 
 > 受限玻尔兹曼机（英语：restricted Boltzmann machine, RBM）是一种可通过输入数据集学习概率分布的随机生成神经网络。
 
-**Auto-encoder的一种变形：De-noising Auto-encoder**
+### Auto-encoder的一种变形：De-noising Auto-encoder
 
 > 在以上讲述的auto-encoder的步骤 + 原来要输进encoder的图片加上一些噪声 + 还原加入噪声之前的图片
 
 * 联手学会去掉噪声
 *   BERT很类似：这个decoder不一定必须是linear的。对于整个bert而言，如果中间比方说第六层输出是embedding，那么前六层就当作encoder，后几层就是decoder
 
-    <img src="https://s1.328888.xyz/2022/05/04/htfeJ.png" alt="image-20220322164620246" data-size="original">
+    ![image-20220322164620246](https://s1.328888.xyz/2022/05/04/htfeJ.png)
 
-**Auto-encoder：Feature Disentanglement**
+### Auto-encoder：Feature Disentanglement
 
 > 除了下游任务，auto-encoder的其他有趣的应用；disentanglement：纠缠的东西解/分离开。文章如下
 >
-> [https://arxiv.org/abs/1904.05742](https://arxiv.org/abs/1904.05742)；[https://arxiv.org/abs/1804.02812](https://arxiv.org/abs/1804.02812)；[https://arxiv.org/abs/1905.05879](https://arxiv.org/abs/1905.05879)
+> https://arxiv.org/abs/1904.05742；https://arxiv.org/abs/1804.02812；https://arxiv.org/abs/1905.05879
 
 其目的：了解在train一个Auto-encoder时，在encoder产出的embedding中每个维度都代表了哪些资讯。
 
@@ -371,11 +371,11 @@ Encoder做到了化繁为简，找出复杂的东西（本质的）有限的变�
   * 如果supervised learning：需要对称的训练数据，如果我想变声新垣结衣呢——数据很难收集。
   *   用Feature Disentanglement，知道embedding的维度的表征含义，我们就可以——
 
-      <img src="https://s1.328888.xyz/2022/05/04/htrwW.png" alt="image-20220322170133713" data-size="original">
+      ![image-20220322170133713](https://s1.328888.xyz/2022/05/04/htrwW.png)
   * 以上这件事情居然是可以办得到的。效果有点……
   * 影像上，nlp上Feature Disentanglement都可以有相应的应用
 
-**Discrete Latent Representation**
+### Discrete Latent Representation
 
 目前为止，我们都假设embedding是一个向量；那抹，如果是一串binary呢？如果是一个one-hot呢？
 
@@ -392,9 +392,9 @@ Encoder做到了化繁为简，找出复杂的东西（本质的）有限的变�
 ![image-20220322225339019](https://s1.328888.xyz/2022/05/04/ht2By.png)
 
 * 好处：Latent Representation被离散了（discreted）。所有Decoder的输入只能存在在codebook中，等于让这个embedding是离散的，其可能 取值是有限的。
-* 有意思的是，当这种idea应用到语音的时候，codebook可以学到最基本的发音单位（phoneme），里边的每一个vector就对应着训练资料总体声音集的某一个基本发音。[https://arxiv.org/pdf/1901.08810.pdf](https://arxiv.org/pdf/1901.08810.pdf)
+* 有意思的是，当这种idea应用到语音的时候，codebook可以学到最基本的发音单位（phoneme），里边的每一个vector就对应着训练资料总体声音集的某一个基本发音。https://arxiv.org/pdf/1901.08810.pdf
 
-**Text as Representation（embedding）**
+### Text as Representation（embedding）
 
 > crazier idea：Representation（embedding）只能是一段向量吗？如果是一段文字呢？当然可以——
 
@@ -403,25 +403,25 @@ Encoder做到了化繁为简，找出复杂的东西（本质的）有限的变�
 * 这样的整体就是**seq2seq2seq auto-encoder**，把长的sequence压缩成短的sequence，再把短的sequence还原为长的sequence，只需要大量没有标注的资料（文章），理论上讲这就是一个unsupervised的summarization；然而按照这样的简单逻辑实际上根本train不起来，原因在于实际train了后Encoder和Decoder之间会发明自己的“暗号”，产生的embedding基本上是unreadable的…（当然Decoder是看得懂的）
 *   对以上的**seq2seq2seq auto-encoder**进行改进使其work：（参考GAN）加上一个Discriminator，Discriminator看过人写的文章（摘要），知道人写的句子长什么样子，可以判断Encoder的输出是否像是人写的句子。
 
-    <img src="https://s1.328888.xyz/2022/05/04/htA2k.png" alt="image-20220324090400036" data-size="original">
+    ![image-20220324090400036](https://s1.328888.xyz/2022/05/04/htA2k.png)
 * **看起来没办法train的问题，RL硬做。**（硬train一发）
 *   Text as Representation结果：（fail or success）
 
-    <img src="https://s1.328888.xyz/2022/05/04/hthId.png" alt="image-20220324103809029" data-size="original">
+    ![image-20220324103809029](https://s1.328888.xyz/2022/05/04/hthId.png)
 
     机器学会主动将奥林匹克运动会缩写为奥运会
 
-    <img src="https://s1.328888.xyz/2022/05/04/ht4vQ.png" alt="image-20220324104203653" data-size="original">
+    ![image-20220324104203653](https://s1.328888.xyz/2022/05/04/ht4vQ.png)
 
-**Tree Structure as Embedding**
+### Tree Structure as Embedding
 
 一段文字转换成tree structure，再把tree还原为一段文字。参考论文如下：
 
-> [https://arxiv.org/abs/1904.03746](https://arxiv.org/abs/1904.03746)；[https://arxiv.org/abs/1806.07832](https://arxiv.org/abs/1806.07832)
+> https://arxiv.org/abs/1904.03746；https://arxiv.org/abs/1806.07832
 
 ![image-20220324104411593](https://s1.328888.xyz/2022/05/04/htqJ3.png)
 
-**MORE Applications**
+### MORE Applications
 
 Auto-encoder更多的应用，举例来说
 
@@ -433,28 +433,28 @@ Auto-encoder更多的应用，举例来说
 
 *   Auto-encoder拿来做压缩。由于Encoder的输入是高维的向量，而输出embedding一定是低维的。将Encoder的输出（embedding）完全可以当作是压缩的结果。而Decoder拿来做解压缩。
 
-    这个压缩是会失真的（lossy）。论文：[https://arxiv.org/abs/1708.00838](https://arxiv.org/abs/1708.00838)；[https://arxiv.org/abs/1703.00395](https://arxiv.org/abs/1703.00395)
+    这个压缩是会失真的（lossy）。论文：https://arxiv.org/abs/1708.00838；https://arxiv.org/abs/1703.00395
 
-    <img src="https://s1.328888.xyz/2022/05/04/htdnB.png" alt="image-20220324110032789" data-size="original">
+    ![image-20220324110032789](https://s1.328888.xyz/2022/05/04/htdnB.png)
 *   Auto-encoder来做**异常检测（Anomaly Detection）**
 
     > 介绍**异常检测（Anomaly Detection）**：
     >
-    > * Given a set of training data&#x20;
-    > * Detecting input  is similar to training data or not（找到离群点）
+    > * Given a set of training data ${x^1,x^2,...,x^N}$
+    > * Detecting input $x$ is similar to training data or not（找到离群点）
     >
     > normal <----> anomaly（outlier，novelty，exceptions）
 
     * “相似”这件事并没有清晰的绝对的具体定义，通常根据情景而表现不同，换言之“相似”是相对的，取决于训练资料的成分。
     *   欺诈侦测（Fraud Detection）
 
-        > • Training data: credit card transactions, 𝑥: fraud or not • Ref: [https://www.kaggle.com/ntnu-testimon/paysim1/home](https://www.kaggle.com/ntnu-testimon/paysim1/home) • Ref: [https://www.kaggle.com/mlg-ulb/creditcardfraud/home](https://www.kaggle.com/mlg-ulb/creditcardfraud/home)
+        > • Training data: credit card transactions, 𝑥: fraud or not • Ref: https://www.kaggle.com/ntnu-testimon/paysim1/home • Ref: https://www.kaggle.com/mlg-ulb/creditcardfraud/home
     *   网络入侵检测（Network Intrusion Detection）
 
-        > • Training data: connection, 𝑥: attack or not • Ref: [http://kdd.ics.uci.edu/databases/kddcup99/kddcup99.html](http://kdd.ics.uci.edu/databases/kddcup99/kddcup99.html)
+        > • Training data: connection, 𝑥: attack or not • Ref: http://kdd.ics.uci.edu/databases/kddcup99/kddcup99.html
     *   医学上的影像检测（分类），比如说Cancer Detection
 
-        > • Training data: normal cells, 𝑥: cancer or not? • Ref: [https://www.kaggle.com/uciml/breast-cancer-wisconsin-data/home](https://www.kaggle.com/uciml/breast-cancer-wisconsin-data/home)
+        > • Training data: normal cells, 𝑥: cancer or not? • Ref: https://www.kaggle.com/uciml/breast-cancer-wisconsin-data/home
 
 我们能不能把这种异常检测任务来当作二元分类（Binary Classification）？的确两个任务非常相像，但是，其问题在于数据的收集中，异常检测中的负样本相对来说非常的少，这种存在的样本不平衡在实际的数据集中往往体现：绝绝大多数是正样本（正常的）资料，而几乎没有异常的资料（统计上讲）。因此，异常检测是不同与一般的分类任务的，这类分类问题被称之为单类分类任务（**One Class Classification**）
 
@@ -468,6 +468,4 @@ Auto-encoder更多的应用，举例来说
 
 通过Auto-encoder这样的特性，我们可以完成一个单分类的分类器。
 
-![image-20220324114940610](https://s1.328888.xyz/2022/05/04/htteT.png)
-
-![image-20220324115009139](https://s1.328888.xyz/2022/05/04/htWwM.png)
+![image-20220324114940610](https://s1.328888.xyz/2022/05/04/htteT.png) ![image-20220324115009139](https://s1.328888.xyz/2022/05/04/htWwM.png)

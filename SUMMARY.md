@@ -1,14 +1,14 @@
 # Table of contents
 
 * [前言](README.md)
-* [Lecture1&2：Introduction to ML/DL](lecture1-and-2-introduction-to-ml-dl.md)
+* [Lecture1&2](lecture1-and-2.md)
 * [Lecture 3：卷积神经网络（CNN）](lecture-3-juan-ji-shen-jing-wang-luo-cnn.md)
-* [Lecture 4：自注意力机制（Self Attention）](lecture-4-zi-zhu-yi-li-ji-zhi-self-attention.md)
+* [Lecture 4：自注意力机制（Self-Attention）](lecture-4-zi-zhu-yi-li-ji-zhi-selfattention.md)
 * [Lecture 5：Transformer](lecture-5-transformer.md)
 * [Lecture 6： 生成对抗网络（GAN）](lecture-6-sheng-cheng-dui-kang-wang-luo-gan.md)
 * [Lecture 7 自监督学习](lecture-7-zi-jian-du-xue-xi.md)
 * [Lecture 8：Adversarial Attack](lecture-8-adversarial-attack.md)
-* [Lecture 9：Explainable AI](lecture-9-explainable-ai.md)
+* [Lecture 9：Explainable ML（Machine Learning）](lecture-9-explainable-ml-machine-learning.md)
 * [Lecture 10：强化学习（Reinforcement Learning）](lecture-10-qiang-hua-xue-xi-reinforcement-learning.md)
 * [Lecture 11：机器终生学习 Lifelong Learning](lecture-11-ji-qi-zhong-sheng-xue-xi-lifelong-learning.md)
 * [Lecture 12：领域自适应（Domain Adaptation）概述](lecture-12-ling-yu-zi-shi-ying-domain-adaptation-gai-shu.md)

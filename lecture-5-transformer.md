@@ -1,16 +1,18 @@
 # Lecture 5：Transformer
 
-> Lectured by HUNG-YI LEE (李宏毅) Recorded by Yusheng zhao（[yszhao0717@gmail.com](mailto:yszhao0717@gmail.com)）
+> Lectured by HUNG-YI LEE (李宏毅) Recorded by Yusheng zhao（yszhao0717@gmail.com）
 
 ***
 
-#### Lecture 5：Transformer <a href="#lecture-5transformer" id="lecture-5transformer"></a>
+\[TOC]
+
+#### Lecture 5：Transformer
 
 ***
 
 > transformer和BERT很有关系
 
-transformer就是一个_**Sequence-to-sequence（Seq2seq）**_的模型。这里可以回顾下_Lecture 4_讲到的致力于解决输入为一组向量的深度学习任务的分类，其中_模型自己决定label的数量_——**seq2seq任务**（Input a sequence, output a sequence, the output length is determined by model）
+transformer就是一个\*\*_Sequence-to-sequence（Seq2seq）\*\*的模型。这里可以回顾下Lecture 4_讲到的致力于解决输入为一组向量的深度学习任务的分类，其中_模型自己决定label的数量_——**seq2seq任务**（Input a sequence, output a sequence, the output length is determined by model）
 
 **应用场景**
 
@@ -74,7 +76,7 @@ Multi-label Classification：同一个东西可以属于多个class。
 
 ***
 
-**Encoder**
+**==Encoder==**
 
 作用：input一排向量输出另外一排向量。上一个_lecture_讲的self-attention以及之前的RNN和CNN都能做到，而在**Transformer里面的Encoder用的是self-attention**。
 
@@ -106,11 +108,11 @@ BERT其实就是Transformer的Encoder。
 
 ***
 
-**Decoder**
+**==Decoder==**
 
 Decoder其实有两种
 
-**比较常见的一种：Autoregressive（AT）**
+**比较常见的一种：==Autoregressive==（AT）**
 
 > Speech Recognition（输入一段声音，输出一段文字） as example，说明AT如何运作
 
@@ -118,35 +120,35 @@ Decoder读入Encoder的输出（某种方法），产生语音识别的结果。
 
 *   首先要先给他一个特殊的符号`START(special token)`，代表start of sentence。在Decoder可能产生的一段文字开头加上一个特殊的符号（字），就代表了开始这个事情。每一个`token`都可以把它当作一个`One-hot`的vector（一维是1其他是0），Decoder吐出一个长度很长的向量（和Vocabulary的大小一样【取决于预计输出的文字形式】）可以用subword代表英语（如果用词汇那需要的维数太多了），用方块汉字代表中文（常用的不过三四千）。
 
-    <img src="https://s1.328888.xyz/2022/05/03/hix1A.png" alt="" data-size="original">
+    ![](https://s1.328888.xyz/2022/05/03/hix1A.png)
 
     由于Decoder的初始输出要经过`softmax`处理，所以这个向量里面的值是一个distribution，向量的值加起来总和为1，选择分数最高的输出。然后把这个输出当作第二个token输入，以此类推：
 
-    <img src="https://s1.328888.xyz/2022/05/03/hryBv.png" alt="" data-size="original">
+    ![](https://s1.328888.xyz/2022/05/03/hryBv.png)
 
     把前面的输出当作下一个输入，再参照之前的输入得到相应的输出。因为它只能看到的是自己的输出，如果其中一步有错误，而错误的输出被输入进Decoder，所以可能会产生一连贯错误。**Error Propagation（一步错，步步错）**。这个问题之后再讨论。
 
     现在把Encoder的部分省略掉，留下Decoder，**Decoder的内部结构长什么样？**（以Transformer为例，比Encoder复杂多了😢）
 
-    <img src="https://s1.328888.xyz/2022/05/03/hreDR.png" alt="" data-size="original">
+    ![](https://s1.328888.xyz/2022/05/03/hreDR.png)
 
     除了中间一块马赛克部分，其实Encoder和Decoder差别不是很大👇
 
-    <img src="https://s1.328888.xyz/2022/05/03/hru3i.png" alt="" data-size="original">
+    ![](https://s1.328888.xyz/2022/05/03/hru3i.png)
 
     在Decoder这边输出多了`softmax`部分，而在Blocks里面不一样的是**Masked Multi-Head Attention**；回顾一下**self-attention**：每个output都会考虑所有的input；而**Masked Self-attention**：每个output只考虑相对之后的input。
 
-    <img src="https://s1.328888.xyz/2022/05/03/hrg80.png" alt="" data-size="original">
+    ![](https://s1.328888.xyz/2022/05/03/hrg80.png)
 
     如👇图所示：
 
-    <img src="https://s1.328888.xyz/2022/05/03/hr9RJ.png" alt="" data-size="original">
+    ![](https://s1.328888.xyz/2022/05/03/hr9RJ.png)
 
     为什么要masked呢？原因很直觉——它的输入是一个一个打进去的（而非并行输入）。
 
-    **有一个关键的问题是——Decoder必须自己决定输出的sequence的长度。**那么Decoder如何决定什么时候输出sequence的截止？答案是Decoder需要设计一个特别的符号：断（END）来表示，这个就是**”Stop Token“**。
+    **有一个关键的问题是——Decoder必须自己决定输出的sequence的长度。那么Decoder如何决定什么时候输出sequence的截止？答案是Decoder需要设计一个特别的符号：断（END）来表示，这个就是”Stop Token“**。
 
-    <img src="https://s1.328888.xyz/2022/05/03/hrXLW.png" alt="" data-size="original">
+    ![](https://s1.328888.xyz/2022/05/03/hrXLW.png)
 
     有始必有终（Start—End），程序中也可以两者作为同一种符号，只不过一个sequence开始输出，另一个sequence结束输出，也是没有问题的。整个流程的描述：Decoder看到了Encoder的embedding以及看到了Begin和自己之后的滞后的输入，就知道识别结束，输出一个END符号（即END符号的机率必须最大）。
 
@@ -154,7 +156,7 @@ Decoder读入Encoder的输出（某种方法），产生语音识别的结果。
 
     这个model以下简单介绍下。
 
-    <img src="https://s1.328888.xyz/2022/05/03/hrfCy.png" alt="" data-size="original">
+    ![](https://s1.328888.xyz/2022/05/03/hrfCy.png)
 
     NAT不像是AT，一个一个输出，而是把整个句子都产生出来。NAT的Decoder吃进去一排START的Token，只要一个步骤就可以完成句子的生成。
 
@@ -173,19 +175,19 @@ Decoder读入Encoder的输出（某种方法），产生语音识别的结果。
 
 ***
 
-**Encoder和Decoder是如何传输资讯的呢？**
+**==Encoder和Decoder是如何传输资讯的呢？==**
 
 方才比较Encoder和Decoder的结构时，Decoder被马赛克的一块👇
 
 ![](https://s1.328888.xyz/2022/05/03/hri1k.png)
 
-这个结构称之为**Cross Attention**。这个模组实际上是如下运作的：
+这个结构称之为==**Cross Attention**==。这个模组实际上是如下运作的：
 
-Decoder会先读进start的一个token，其中的self-attention是mask的，得到一个向量，做transform，乘以一个矩阵得到一个。同时Encoder会依照self-attention产生由此计算得到。这个步骤称之为**Cross Attention**。（来自Decoder，来自Encoder）之后的计算和self-attention类似，得到加权值在输入全连接层中。
+Decoder会先读进start的一个token，其中的self-attention是mask的，得到一个向量，做transform，乘以一个矩阵$W\_q$得到一个$q$。同时Encoder会依照self-attention产生$a^i,k^i,v^i$由此计算得到$\alpha\_i$。这个步骤称之为**Cross Attention**。（$q$来自Decoder，$a,k,v$来自Encoder）之后的计算和self-attention类似，得到加权值在输入全连接层中。
 
 ![](https://s1.328888.xyz/2022/05/03/hr2ud.png)
 
-来自ICASS的文章Listen, attend and spell: A neural network for large vocabulary conversational speech recognition——seq2seq硬做语音识别，稍逊于SOTA。有趣的是，这里已经出现attention的机制，是先有cross attention再有self-attention。
+来自ICASS的文章\[Listen, attend and spell: A neural network for large vocabulary conversational speech recognition]\([Listen, attend and spell: A neural network for large vocabulary conversational speech recognition | IEEE Conference Publication | IEEE Xplore](https://ieeexplore.ieee.org/document/7472621))——seq2seq硬做语音识别，稍逊于SOTA。有趣的是，这里已经出现attention的机制，是先有cross attention再有self-attention。
 
 ![](https://s1.328888.xyz/2022/05/03/hr8dQ.png)
 

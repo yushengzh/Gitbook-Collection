@@ -1,28 +1,28 @@
 # Lecture 6： 生成对抗网络（GAN）
 
-#### Lecture 6： 生成对抗网络（GAN） <a href="#lecture6-sheng-cheng-dui-kang-wang-luo-gan" id="lecture6-sheng-cheng-dui-kang-wang-luo-gan"></a>
-
-> Lectured by HUNG-YI LEE (李宏毅) Recorded by Yusheng zhao（[yszhao0717@gmail.com](mailto:yszhao0717@gmail.com)）
+> Lectured by HUNG-YI LEE (李宏毅) Recorded by Yusheng zhao（yszhao0717@gmail.com）
 
 ***
+
+\[TOC]
 
 ***
 
 > Network as Generator：
 >
-> 之前学到的Network都是一个function：x Network y
+> 之前学到的Network都是一个function：x $=>$Network $=>$y
 >
-> 这个Lecture的主题是把Network看作是一个Generator，作深层使用，这个network特别的地方是输入会加上一个random的variable ：网络的输入不仅有，还有Simple Distribution的分布，是同时看和的输出。
+> 这个Lecture的主题是把Network看作是一个Generator，作深层使用，这个network特别的地方是输入会加上一个random的variable $z$：网络的输入不仅有$x$，还有Simple Distribution的分布$z$，$y$是同时看$x$和$z$的输出。
 >
-> network怎么同时看和呢？有很多不同的做法，取决于network的架构。举个栗子：是个向量，是个向量，两者直接接起来变成比较长的向量作为一个输入；或者恰好和长度一样，那两者相加后当作输入。
+> network怎么同时看$x$和$z$呢？有很多不同的做法，取决于network的架构。举个栗子：$x$是个向量，$z$是个向量，两者直接接起来变成比较长的向量作为一个输入；或者恰好$x$和$z$长度一样，那两者相加后当作输入。
 >
-> 特别的地方就是它是不固定的，所以每次都会一样，它是从一个distribution中sample（采样）出来的，这个distribution（我们自己决定）必须够简单：我们知道这个分布的式子长什么样子，比方说高斯分布（Gaussian Distribution）、均匀分布（Uniform Distribution）。随着我们sample到的不同，输出也会不同。最后得到的输出构成一个复杂的分布（Complex Distribution）。
+> $z$特别的地方就是它是不固定的，所以每次都会一样，它是从一个distribution中sample（采样）出来的，这个distribution（我们自己决定）必须够简单：我们知道这个分布的式子长什么样子，比方说高斯分布（Gaussian Distribution）、均匀分布（Uniform Distribution）。随着我们sample到的$z$不同，输出$y$也会不同。最后得到的输出构成一个复杂的分布（Complex Distribution）。
 >
 > 这种可以输出一个distribution的network我们称之为**Generator**。
 >
-> <img src="https://s1.328888.xyz/2022/05/03/hrqRT.png" alt="" data-size="original">
+> ![](https://s1.328888.xyz/2022/05/03/hrqRT.png)
 
-**为什么我们需要Generator？（即为什么输出需要是个分布）**
+## 为什么我们需要Generator？（即为什么输出需要是个分布）
 
 以video prediction为例，按照我们之前所学过的supervised learning方法，将过去的画面帧（部分）输入Network，输出一张预测的帧（部分）：会出现预测画面明显不合理的情形（network变成一个“老好人”，出现同一种输入得到多种输出的情形）——解决方法：让输出呈现一种概率的特征，或者说是输出不固定（包含多种可能）。
 
@@ -36,12 +36,12 @@
 
 *   Drawing
 
-    <img src="https://s1.328888.xyz/2022/05/03/hrtC7.png" alt="" data-size="original">
+    ![](https://s1.328888.xyz/2022/05/03/hrtC7.png)
 
     同样红眼睛的特征，可能绘画出来的头像不太一样。
 *   Chatbot
 
-    <img src="https://s1.328888.xyz/2022/05/03/hr5bX.png" alt="" data-size="original">
+    ![](https://s1.328888.xyz/2022/05/03/hr5bX.png)
 
     一个Q\&A相似的道理，回答也有不一样……
 
@@ -51,7 +51,7 @@
 
 其中一个最著名的model称之为**Generative Adversarial Network（GAN）**
 
-**介绍Generative Adversarial Network（GAN）**
+## 介绍Generative Adversarial Network（GAN）
 
 > GAN怎么念？——淦，完毕。
 >
@@ -61,20 +61,20 @@
 
 以Anime Face Generation为例，
 
-*   首先说明_**Unconditional generation**_（输入拿掉了，只保留了分布）
+*   首先说明_**Unconditional generation**_（输入拿掉了$x$，只保留了分布$z$）
 
-    输入（一个从Normal Distribution采样出来的一个向量，通常是一个_Low-dim vector_，维数由自己决定的），把丢进一个Generator里面，输出一个对应的向量（满足Complex Distribution，通常是一个_high-dim vector_，这样每一个高维的向量其实就对应一个生成的图像）
+    输入$z$（一个从Normal Distribution采样出来的一个向量，通常是一个_Low-dim vector_，维数由自己决定的），把$z$丢进一个Generator里面，输出一个对应的向量$y$（满足Complex Distribution，通常是一个_high-dim vector_，这样每一个高维的向量其实就对应一个生成的图像）
 
-    <img src="https://s1.328888.xyz/2022/05/03/hrzuZ.png" alt="" data-size="original">
+    ![](https://s1.328888.xyz/2022/05/03/hrzuZ.png)
 
-    我们的目标是，不管左边输入的是怎样的向量，都会输出一个二刺螈脸图像（向量）
+    我们的目标是，不管左边输入的$z$是怎样的向量，都会输出一个二刺螈脸图像（向量）
 
-    * 为什么这边是normal distribution（正态分布）呢？可以用别的吗？——当然可以用别的，实践证明不同的分布可能区别并没有真的非常大。可以探讨很多文献，有设计实验验证不同分布的区别。这个任务的要求只需要输入的分布足够简单，选择distribution的任务可以交给generator实现。
+    * 为什么这边是normal distribution（正态分布）呢？可以用别的吗？——当然可以用别的，实践证明不同的分布可能区别并没有真的非常大。可以探讨很多文献，有设计实验验证不同分布的区别。这个任务的要求只需要输入$z$的分布足够简单，选择distribution的任务可以交给generator实现。
 *   _**Discriminator**_
 
     作用：拿一张图像作为输入，本质上还是一个神经网络（或者说是一个function），输出是一个数字（标量scalar，这个数字越大就说明这个输入越像是真实的二刺螈人物的图像）
 
-    <img src="https://s1.328888.xyz/2022/05/03/hrCdC.png" alt="" data-size="original">
+    ![](https://s1.328888.xyz/2022/05/03/hrCdC.png)
 
     Generator是一个神经网络，同样的discriminator也是一个神经网络，涉及到的网络架构完全可以自己设计：可以是CNN，亦可以是transformer——只要能够产生我们所需要的输入输出都可以。
 *   _**Basic Idea of GAN**_
@@ -83,15 +83,15 @@
 
     对应到GAN上，猎物就是Generator，天敌就是Discriminator
 
-    <img src="https://s1.328888.xyz/2022/05/03/h4tey.png" alt="" data-size="original">
+    ![](https://s1.328888.xyz/2022/05/03/h4tey.png)
 
     我们的任务是generator画出二刺螈的人物，它是按照以下方式迭代的👇
 
-    <img src="https://s1.328888.xyz/2022/05/03/hrpKg.png" alt="" data-size="original">
+    ![](https://s1.328888.xyz/2022/05/03/hrpKg.png)
 
     第一代的generator的参数几乎是随机的，得到的图像是凌乱的杂讯，第一代discriminator的任务就是generator的输出和真实的图像（ground truth）有什么区别（举例说有没有两个圆球（眼睛））；第二代generator相比要进行“进化”——为了“骗”过第一代discriminator（比方说进化出眼睛），而第二代discriminator也随之进化，试图分辨第二代图片间的差异；周而复始，比学赶帮超……generator产生出discriminator输出较大的二刺螈人物图像。
 
-    早期的论文，描述Generator和Discriminator的关系就是**“adversarial”**（对抗的）——亦敌亦友的关系（Naruto和Sasuke……）
+    早期的论文，描述Generator和Discriminator的关系就是\*\*“adversarial”\*\*（对抗的）——亦敌亦友的关系（Naruto和Sasuke……）
 *   _**从算法角度看待Generator和Discriminator**_【Algorithm】
 
     两个network（每个network有好几层）：
@@ -106,26 +106,26 @@
 
           discriminator的训练目标是要分别出generator和ground truth的差异。实际的操作可能是这样子的：训练一个分类器，ground truth为1，generator objects为0，做一个二分类的re任务；当然也可以当作回归问题来做。
 
-          <img src="https://s1.328888.xyz/2022/05/03/h4dnW.png" alt="" data-size="original">
+          ![](https://s1.328888.xyz/2022/05/03/h4dnW.png)
       *   _**STEP 2**_：固定住discriminator D，然后只训练（更新）generator G
 
           generator的训练目标就是要输出的向量（图像）能够以假乱真，骗过discriminator
 
           我们有一个generator，从高斯分布randomly sample到low-dim的向量作为输入，然后产生一个图片，将图片丢进discriminator，产生一个分数。discriminator的参数是固定的，这时候需要调整generator的参数
 
-          <img src="https://s1.328888.xyz/2022/05/03/h4DWF.png" alt="" data-size="original">
+          ![](https://s1.328888.xyz/2022/05/03/h4DWF.png)
 
           实际上，我们会把generator和discriminator接起来，看作是一个很大的network（large network），里面有很多层（前面更新调整参数，后面几层参数固定），其中有一层得到的输出很宽，它的dimension就和图片里面的pixel数目乘三是一样的，整理以下就是我们的目标输出（图片）。这个network的训练方法和我们之前讲的没有什么不同，唯一的不同就是其目标discriminator的输出是越大越好。
       *   _**STEP 3**_：接下来，就是反复的训练discriminator和generator，重复_**STEP 1**_和_**STEP 2**_
 
-          <img src="https://s1.328888.xyz/2022/05/03/h45qk.png" alt="" data-size="original">
+          ![](https://s1.328888.xyz/2022/05/03/h45qk.png)
 
           最后得到一个generator能够生成以假乱真的图片，那么训练任务就结束了。
 *   二次元人物头像生成实战
 
     > [GAN学习指南：从原理入门到制作生成Demo - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/24767059)
 
-2019年，用styleGAN做的二次元人物头像，[https://www.gwern.net/Faces](https://www.gwern.net/Faces)
+2019年，用styleGAN做的二次元人物头像，https://www.gwern.net/Faces
 
 *   除了产生动画人脸，也可以用GAN产生真实人脸
 
@@ -141,13 +141,13 @@
 
 ***
 
-**Theory behind GAN**
+## Theory behind GAN
 
 我们训练的目标是什么？——以我们之前讲的神经网络为例，我们要定义一个loss function，用梯度下降法，不断地minimize这个loss function就行了。而在这个Generator地问题里，我们要minimize两个dscriminator的差距，如下图👇
 
 ![](https://s1.328888.xyz/2022/05/03/h4p23.png)
 
-我们从Normal Distribution（正态分布）中sample出vector丢进Generator里面，产生出一个比较复杂的distribution，这个复杂的distribution被称之为，而ground truth即真实的数据集形成另一实在的一个distribution被称之为，我们期待这两者越接近越好——这就是我们minimize的目标。
+我们从Normal Distribution（正态分布）中sample出vector丢进Generator里面，产生出一个比较复杂的distribution，这个复杂的distribution被称之为\*\*$P\_G$**，而ground truth即真实的数据集形成另一实在的一个distribution被称之为**$P\_{data}$\*\*，我们期待这两者越接近越好——这就是我们minimize的目标。
 
 分布的布局假设如下↓
 
@@ -155,36 +155,40 @@
 
 以上，我们总结这样一个式子：
 
-其中代表和之间的散度（Divergence）【我们可以想成是两个distribution之间的某种距离，divergence本身就是distribution的一种measure】
+$$
+G^* = arg\space \underset{G}{min}\space Div(P_G,P_{data})
+$$
 
-**我们实际工作的目标就是：找到一组generator的参数使得按上述方法经过generator后得到的越小越好**
+其中$Div(P\_G,P\_{data})$代表$P\_G$和$P\_{data}$之间的散度（Divergence）【我们可以想成是两个distribution之间的某种距离，divergence本身就是distribution的一种measure】
+
+**我们实际工作的目标就是：找到一组generator的参数使得按上述方法经过generator后得到的$G^\*$越小越好**
 
 > 关于散度（divergence）：这里不详细介绍，课外另外补充学习。有很多种实现方法：**KL divergence**、JS Divergence等等
 
-但是实际上在计算散度时，会涉及到复杂的积分（实作上可能几乎不知道怎么计算），如果我们计算散度非常困难，那么怎么找到那个理想的？——这个就是在train这种generator经常遇到的问题，而GAN以很神奇巧妙的方式，可以突破计算散度的限制。以下进行介绍👇
+但是实际上在计算散度时，会涉及到复杂的积分（实作上可能几乎不知道怎么计算），如果我们计算散度非常困难，那么怎么找到那个理想的$G^\*$？——这个就是在train这种generator经常遇到的问题，而GAN以很神奇巧妙的方式，可以突破计算散度的限制。以下进行介绍👇
 
 > Sampling is good enough……
 
-GAN要求我们只需要知道怎么从和这两个分布sample东西出来，就有办法算divergence。
+GAN要求我们只需要知道怎么从$P\_G$和$P\_{data}$这两个分布sample东西出来，就有办法算divergence。
 
-* 把真实的database拿出来，里面sample一些就可以组成
-*   把normal distribution采样出来的vector输入进generator，产生一堆输出-->就是从采样出来的结果
+* 把真实的database拿出来，里面sample一些就可以组成$P\_{data}$
+*   把normal distribution采样出来的vector输入进generator，产生一堆输出-->就是从$P\_G$采样出来的结果
 
-    <img src="https://s1.328888.xyz/2022/05/03/h4sjB.png" alt="" data-size="original">
+    ![](https://s1.328888.xyz/2022/05/03/h4sjB.png)
 
-既然已经知道如何sample了，那么怎么计算（估算）divergence呢？——这需要Discriminator的力量，我们根据sample出来的data（分别来自和）来对Discriminator进行训练，训练的目标就是当看到Real data（from ）时，给比较高的分数，而看到generative data时，就给比较低的分数。[https://arxiv.org/abs/1406.2661](https://arxiv.org/abs/1406.2661)
+既然已经知道如何sample了，那么怎么计算（估算）divergence呢？——这需要Discriminator的力量，我们根据sample出来的data（分别来自$P\_G$和$P\_{data}$）来对Discriminator进行训练，训练的目标就是当看到Real data（from $P\_{data}$）时，给比较高的分数，而看到generative data时，就给比较低的分数。https://arxiv.org/abs/1406.2661
 
 假如把它看作是Optimization的问题，总结为以下任务：训练一个Discriminator
 
 > 需要maximize的称之为**Objective Function**；对应的，需要minimize的称之为**Loss Function**
 
-**training：**
+**training：**$D^\* = arg \space \underset{D}{max}\space V(D,G)$
 
-**Objective Function** for D：
+**Objective Function** for D：$V(G,D) = E\_{y \sim P\_{data\}}\[logD(y)]+E\_{y \sim P\_G}\[log(1-D(y))]$
 
 ![](https://s1.328888.xyz/2022/05/03/h4IJT.png)
 
-我们需要D越大越好，上面这件事情等同于一个和的二分类器（binary classifier）
+我们需要D越大越好，上面这件事情等同于一个$P\_G$和$P\_{data}$的二分类器（binary classifier）
 
 ![](https://s1.328888.xyz/2022/05/03/h4Rz2.png)
 
@@ -192,15 +196,21 @@ GAN要求我们只需要知道怎么从和这两个分布sample东西出来，�
 
 ![](https://s1.328888.xyz/2022/05/03/h4YnM.png)
 
-我们本来的目标是要找一个generator，去minimize两个分布的divergence，而由上述的关系，我们何不妨用训练目标**Objective Function：**来替换原有目标，求divergence的较大值，记为，综上，我们转换任务，得：
+我们本来的目标是要找一个generator，去minimize两个分布的divergence，而由上述的关系，我们何不妨用训练目标**Objective Function：**$\underset{D}{max}V(G,D)$来替换原有目标，求divergence的较大值，记为$V(D,G)$，综上，我们转换任务，得：
 
-其中the maximum objective value（）和**JS divergence**相关。
+$$
+Generator:G^* = arg \space \underset{G}{min} \space \underset{D}{max}V(G,D) \\ Discriminator:D^* = arg \space \underset{D}{max}V(D,G)
+$$
+
+其中the maximum objective value（$\underset{D}{max}V(G,D)$）和**JS divergence**相关。
 
 我们可以改变（自己定义）objective function，从而衡量各种各样得divergence（散度），在[文章](https://arxiv.org/abs/1606.00709)中（F GAN），总结了许多方法，using the divergence you like.
 
-> <img src="https://s1.328888.xyz/2022/05/03/h4ce7.png" alt="" data-size="original">
+> $D \rightarrow G$
+>
+> ![](https://s1.328888.xyz/2022/05/03/h4ce7.png)
 
-> <img src="https://s1.328888.xyz/2022/05/03/h4mDX.png" alt="" data-size="original">
+> ![](https://s1.328888.xyz/2022/05/03/h4mDX.png)
 
 不同的divergence，去怎样设计objective function，这篇文章都有详细的记载。
 
@@ -210,30 +220,30 @@ GAN要求我们只需要知道怎么从和这两个分布sample东西出来，�
 
 ***
 
-**Tips for GAN**
+## Tips for GAN
 
 > JS divergence有什么样的问题？
 >
-> *   在绝大多数case里面，和重叠的部分非常少（are not overlapped）
+> *   在绝大多数case里面，$P\_G$和$P\_{data}$重叠的部分非常少（are not overlapped）
 >
 >     *   理由1：data本身的特性，由于图像本身是高维的，代表图像的向量就是处于高维空间中的低维的**manifold（流形）**。对于一个类别的图像本身（譬如二次元头像），分布的区间是非常狭窄的。
 >
 >         > 流形是一种空间，一个流形好比是一个 d 维的空间，在一个 m 维的空间中 (m > d) 被扭曲之后的结果（一般维度压缩的方法中都会提到这个词，谱聚类中就有涉及这个思想，稍后再说），可以类似于地球，地球的表面是一个球面
 >
->         <img src="https://s1.328888.xyz/2022/05/03/h43BC.png" alt="" data-size="original">
+>         ![](https://s1.328888.xyz/2022/05/03/h43BC.png)
 >
->         从二维空间的角度，和都是二维空间上的两条直线，除非它俩重合，那么它俩相交的部分几乎可以忽略不记。
->     *   理由2：Sampling（采样的角度上看），尽管和是有相交的，但是由于我们做初步处理的时候是先randomly sample的，那么在训练数据中相交的就更少了。
+>         从二维空间的角度，$P\_G$和$P\_{data}$都是二维空间上的两条直线，除非它俩重合，那么它俩相交的部分几乎可以忽略不记。
+>     *   理由2：Sampling（采样的角度上看），尽管$P\_G$和$P\_{data}$是有相交的，但是由于我们做初步处理的时候是先randomly sample的，那么在训练数据中相交的就更少了。
 >
->         <img src="https://s1.328888.xyz/2022/05/03/h4O8g.png" alt="" data-size="original">
+>         ![](https://s1.328888.xyz/2022/05/03/h4O8g.png)
 >
->     以上两个理由说明了和是几乎没有重叠的。
+>     以上两个理由说明了$P\_G$和$P\_{data}$是几乎没有重叠的。
 >
-> 因此，如果这两个分布不重叠，那**JS divergence**会算出来就一直是；若重合，则为0
+> 因此，如果这两个分布不重叠，那**JS divergence**会算出来就一直是$log2$；若重合，则为0
 >
-> <img src="https://s1.328888.xyz/2022/05/03/h4kvt.png" alt="" data-size="original">
+> ![](https://s1.328888.xyz/2022/05/03/h4kvt.png)
 >
-> JS divergence无法反映出和的差别优劣。
+> JS divergence无法反映出$P\_G$和$P\_{data}$的差别优劣。
 >
 > 如果两个分布不重叠，那么在训练中二分类器正确率几乎会达到100%，这种训练近乎无效...
 >
@@ -241,39 +251,43 @@ GAN要求我们只需要知道怎么从和这两个分布sample东西出来，�
 >
 > 所以简单的而分类器无法提供有效的GAN的训练效果的反馈。以下介绍改良的替代品WGAN。
 
-**Wasserstein distance（earth mover distance）**
+### Wasserstein distance（earth mover distance）
 
-假设两个分布：和。想象下是土堆（a pile of earth）而是土堆放的目的地（target）。而**平均距离（average distance）**就是推土机（earth mover）把土从到的距离
+假设两个分布：$P$和$Q$。想象下$P$是土堆（a pile of earth）而$Q$是土堆放的目的地（target）。而\*\*平均距离（average distance）\*\*就是推土机（earth mover）把土从$P$到$Q$的距离
 
 ![](https://s1.328888.xyz/2022/05/03/h41Le.png)
 
-对于更复杂的分布情况，区间更宽些👇，把变成有无穷多种，**穷举所有的“moving plan”中average distance**_**最小的值才是**_**Wasserstein distance**，参考博客：[Wasserstein GAN and the Kantorovich-Rubinstein Duality - Vincent Herrmann](https://vincentherrmann.github.io/blog/wasserstein/)
+对于更复杂的分布情况，区间更宽些👇，把$P$变成$Q$有无穷多种，**穷举所有的“moving plan”中average distance**_**最小的值才是**_**Wasserstein distance**，参考博客：[Wasserstein GAN and the Kantorovich-Rubinstein Duality - Vincent Herrmann](https://vincentherrmann.github.io/blog/wasserstein/)
 
 ![](https://s1.328888.xyz/2022/05/03/h4bzO.png)
 
 使用Wasserstein distance可以反映出训练过程中两个分布之间的距离变化（优劣），而二分类器无法做到。在训练过程中，它描述了一种渐渐变化的趋势（而非突变），这种趋势体现的差异能够让我们去train我们的generator去minimize我们定义的Wasserstein distance
 
-**WGAN**
+### ==WGAN==
 
-定义：就是用_Wasserstein distance_取代_JS divergence_的**GAN**，用_Wasserstein distance_来评估和之间的距离。
+定义：就是用_Wasserstein distance_取代_JS divergence_的**GAN**，用_Wasserstein distance_来评估$P\_G$和$P\_{data}$之间的距离。
 
-_Wasserstein distance_如何计算——去解答上（3）这个式子，解出来的值就是distance的数值解，注意到：这里的指的是network的输出
+$$
+\underset{D \in 1-Lipschitz}{max}\{E_{y\sim P_{data}}[D(y)]-E_{y\sim P_{G}}[D(y)]\}
+$$
 
-&#x20;：表明必须是一个足够平滑的function；如果没有这个限制，关于的训练永远不会收敛，这些maximum就会趋于无穷大。文章：[https://arxiv.org/abs/1701.07875](https://arxiv.org/abs/1701.07875)
+_Wasserstein distance_如何计算——去解答上（3）这个式子，解出来的值就是distance的数值解，注意到：这里的$y$指的是network的输出
+
+$D \in 1 - Lipschitz$ ：表明$D$必须是一个足够平滑的function；如果没有这个限制，关于$D$的训练永远不会收敛，这些maximum就会趋于无穷大。文章：https://arxiv.org/abs/1701.07875
 
 ![](https://s1.328888.xyz/2022/05/03/h4F1q.png)
 
-怎么去真的解（3）这个式子？又怎样去保证的平滑性？
+怎么去真的解（3）这个式子？又怎样去保证$D$的平滑性？
 
 在最初的解答中研究者做了粗糙的处理👇，这个实际上没有解这个式子，而是做了粗线条的近似计算，当然缺陷很大。
 
 ![](https://s1.328888.xyz/2022/05/03/h4ZeP.png)
 
-后来另外一个想法是：，来自[一篇文章](https://arxiv.org/abs/1704.00028)
+后来另外一个想法是：$Improve \space WGAN \rightarrow Gradient \space Penalty$，来自[一篇文章](https://arxiv.org/abs/1704.00028)
 
 ![](https://s1.328888.xyz/2022/05/03/h4jDm.png)
 
-以及[Spectral Normalization for Generative Adversarial Networks](https://arxiv.org/abs/1802.05957)所介绍的**Spectral Normalization**  Keep gradient norm smaller than 1 everywhere（为了得到更好的GAN，应当参考下这篇文章）
+以及[Spectral Normalization for Generative Adversarial Networks](https://arxiv.org/abs/1802.05957)所介绍的**Spectral Normalization** $ \Rightarrow$ Keep gradient norm smaller than 1 everywhere（为了得到更好的GAN，应当参考下这篇文章）
 
 > **课后问题解答**
 >
@@ -287,7 +301,7 @@ Generator和Discriminator必须“棋逢对手”，相互“对抗”，相互�
 
 为了能够train起来，也是需要调超参数（hyper parameter）的。
 
-**网络上更多的Tips**
+#### 网络上更多的Tips
 
 * [Tips from Soumith](https://github.com/soumith/ganhacks)
 * [Tips in DCGAN: Guideline for network architecture design for image generation](https://arxiv.org/abs/1511.06434)
@@ -296,7 +310,7 @@ Generator和Discriminator必须“棋逢对手”，相互“对抗”，相互�
 
 ***
 
-**GAN for Sequence Generation**
+## GAN for Sequence Generation
 
 > 课程前面部分使用GAN的样例是生成（二次元）图像，而训练GAN最难的地方是要拿GAN来生成文字。
 
@@ -318,14 +332,14 @@ attention机制下的**max or sample**下，尽管数值有在变化而取出来
 
 ***
 
-**More Generative Models**
+## More Generative Models
 
 > GAN是最广泛使用而且performance也很好；以下的可以自行了解，train的难度也不遑多让。
 
 * Variational Autoencoder（VAE）
 * FLOW-based Model
 
-**用supervised learning来做图像生成**
+### 用supervised learning来做图像生成
 
 我们有一堆图片，每张图片用一个vector来表示，然后“硬train一发”，当然需要用到特殊的方法来安排这些训练的vectors。可参考的研究：[Generative Latent Optimization (GLO)](https://arxiv.org/abs/1707.05776)、[Gradient Origin Networks](https://arxiv.org/abs/2007.02798)
 
@@ -333,22 +347,22 @@ attention机制下的**max or sample**下，尽管数值有在变化而取出来
 
 ***
 
-**Evaluation of Generation**
+## Evaluation of Generation
 
 > 生成器效能评估与条件式生成。
 
-**Quality of Image**
+### Quality of Image
 
 * 早期：找人来看——human evaluation is expensive(而且不客观，不稳定)
 *   一个类别跑一个图像的分类系统👇
 
-    <img src="https://s1.328888.xyz/2022/05/03/h4ovv.png" alt="" data-size="original">
+    ![](https://s1.328888.xyz/2022/05/03/h4ovv.png)
 
     检验生成出来图像是否合理，用机器来验证机器。不过光用这个做法是不够的，我们需要对生成的结果的**diversity**进行考量。如果只用这个方法我们会被一个称作**Mode Collapse**的东西fool过去。
 
     > Mode Collapse（模型坍缩）：生成数量巨大后，产生效果单一
     >
-    > <img src="https://s1.328888.xyz/2022/05/03/h4EL0.png" alt="" data-size="original">
+    > ![](https://s1.328888.xyz/2022/05/03/h4EL0.png)
     >
     > 我们可以理解为discriminator的一个盲点，generator硬打一发，就混过去了。目前有效彻底的解决方法还没有，即使是强如Google爆搜参数，也仅仅是在察觉到mode collapse后就停止train，收掉model。
 
@@ -356,7 +370,7 @@ attention机制下的**max or sample**下，尽管数值有在变化而取出来
 
     > Mode Dropping：
     >
-    > <img src="https://s1.328888.xyz/2022/05/03/h4PCJ.png" alt="" data-size="original">
+    > ![](https://s1.328888.xyz/2022/05/03/h4PCJ.png)
     >
     > 依然是生成data范围太窄，出现了些模式类似的现象。
     >
@@ -366,18 +380,22 @@ attention机制下的**max or sample**下，尽管数值有在变化而取出来
 
     这时候，我们就需要Image Classifier，验证过程：把生成所有图片丢尽image Classify里面，得到各个图片的distribution（分布），把所有的distribution平均起来，看看平均的distribution是否集中起来，若是，说明多样性不足，每张图片都很类似。
 
-    <img src="https://s1.328888.xyz/2022/05/03/hHUuW.png" alt="" data-size="original">
+    ![](https://s1.328888.xyz/2022/05/03/hHUuW.png)
 
-    <img src="https://s1.328888.xyz/2022/05/03/hHedy.png" alt="image-20211006114718306" data-size="original">
+    ​
+
+    ![image-20211006114718306](https://s1.328888.xyz/2022/05/03/hHedy.png)
+
+    ​
 *   Diversity和quality好像是有带点互斥的；分布越集中，quality越好；分布越平坦，diversity越好。但是两者范围不一样，quality看一张图片，diversity看生成的一批图片。
 
-    过去有一个常被使用的指标：**Inception Score（IS）**——Good quality, large diversity  Large **IS**。使用方法：用_Inception Network_量一下quality，如果quality高，diversity大，那IS就高。IS不适用于衡量diversity。（每张二次元人物都是一个“人脸”）
+    过去有一个常被使用的指标：**Inception Score（IS）**——Good quality, large diversity $\rightarrow$ Large **IS**。使用方法：用_Inception Network_量一下quality，如果quality高，diversity大，那IS就高。IS不适用于衡量diversity。（每张二次元人物都是一个“人脸”）
 
-**Fréchet Inception Distance (FID)**
+### Fréchet Inception Distance (FID)
 
-> 来自[https://arxiv.org/pdf/1706.08500.pdf](https://arxiv.org/pdf/1706.08500.pdf)
+> 来自https://arxiv.org/pdf/1706.08500.pdf
 
-在把一张图像丢进CNN的网络的pipeline里面，可以在之前截下来（最后一层Hidden Layer的输出代表图片），画出来假设（在二维平面）长这副样子
+在把一张图像丢进CNN的网络的pipeline里面，可以在$softmax$之前截下来（最后一层Hidden Layer的输出代表图片），画出来假设（在二维平面）长这副样子
 
 ![](https://s1.328888.xyz/2022/05/03/hHu3k.png)
 
@@ -389,17 +407,17 @@ attention机制下的**max or sample**下，尽管数值有在变化而取出来
 >
 > Google爆做，各式各样的GAN👇
 >
-> <img src="https://s1.328888.xyz/2022/05/03/hHyEd.png" alt="" data-size="original">
+> ![](https://s1.328888.xyz/2022/05/03/hHyEd.png)
 
 某些种类的GAN在某些架构的network上表现较好。
 
-也会有一种现象（问题），GAN生成的图片和训练的图片几乎一致，这不是我们的目的，所以需要侦测下real data和Generated data的相似度（复制、翻转、放大）[https://arxiv.org/pdf/1511.01844.pdf](https://arxiv.org/pdf/1511.01844.pdf)
+也会有一种现象（问题），GAN生成的图片和训练的图片几乎一致，这不是我们的目的，所以需要侦测下real data和Generated data的相似度（复制、翻转、放大）https://arxiv.org/pdf/1511.01844.pdf
 
 在[Pros and cons of GAN evaluation measures](https://arxiv.org/abs/1802.03446)中给出了关于GAN的许多评价指标。
 
 ***
 
-**Conditional Generation**
+## Conditional Generation
 
 > 之前我们以生成二次元头像为例的GAN用的是unconditional generation。
 
@@ -407,17 +425,17 @@ attention机制下的**max or sample**下，尽管数值有在变化而取出来
 
 *   可以做_**Text-to-image**_：从文本中生成图片。这是一个supervised learning问题，在训练集上，我们需要搜集一些图片然后加上一些label（特征，文字的描述）
 
-    输入的应该是一段文本（特征描述），有很多方法，可以用transformer
+    输入的$x$应该是一段文本（特征描述），有很多方法，可以用transformer
 
-    输入的就是正态分布（Normal Distribution）
+    输入的$z$就是正态分布（Normal Distribution）
 
-**Conditional GAN**
+### Conditional GAN
 
-以下给出的方法是错误的，为什么？这个架构完全类似于unconditional GAN，事实上在训练当中，只要generator产生图像可以fool掉discriminator就好了，那么输入的的作用完全没有体现出来。所以说，这个架构是错误的（不是我们想要的）。
+以下给出的方法是错误的，为什么？这个架构完全类似于unconditional GAN，事实上在训练当中，只要generator产生图像可以fool掉discriminator就好了，那么输入的$x$的作用完全没有体现出来。所以说，这个架构是错误的（不是我们想要的）。
 
 ![](https://s1.328888.xyz/2022/05/03/hH9R3.png)
 
-以下给出正确的设计👇，来自[https://arxiv.org/abs/1605.05396](https://arxiv.org/abs/1605.05396)
+以下给出正确的设计👇，来自https://arxiv.org/abs/1605.05396
 
 为了在训练中得到高分，不仅能生产出图像可以fool掉discriminator，而且文字label和图像需要匹配上。因此我们**训练所需要的数据必须是成对出现的**
 
@@ -427,34 +445,34 @@ attention机制下的**max or sample**下，尽管数值有在变化而取出来
 
 *   看一张图片生成一张图片，**Image translation** or **pix2pix**
 
-    > 来自[https://arxiv.org/abs/1611.07004](https://arxiv.org/abs/1611.07004)
+    > 来自https://arxiv.org/abs/1611.07004
     >
-    > <img src="https://s1.328888.xyz/2022/05/03/hHXLB.png" alt="" data-size="original">
+    > ![](https://s1.328888.xyz/2022/05/03/hHXLB.png)
 
     具体的实现方法：
 
     * 当然可以用supervised learning，但是前人实践证明可能效果不太好
     *   用GAN来train（由于GAN创造力过于丰富了，加supervised learning【限制】可能会更好）
 
-        <img src="https://s1.328888.xyz/2022/05/03/hHfCT.png" alt="" data-size="original">
+        ![](https://s1.328888.xyz/2022/05/03/hHfCT.png)
 *   一段声音生成一张图片👇
 
-    > 来自[https://arxiv.org/abs/1808.04108](https://arxiv.org/abs/1808.04108)
+    > 来自https://arxiv.org/abs/1808.04108
 
-    <img src="https://s1.328888.xyz/2022/05/03/hHib2.png" alt="" data-size="original">
+    ![](https://s1.328888.xyz/2022/05/03/hHib2.png)
 
     有意思的是，当声音越来越大，生成的图片似乎也会对其做出反应，仿佛机器真的学习到了声音的意味…
 *   生成会动的图像，譬如**Talking Head Generation**
 
-    > 来自[https://arxiv.org/abs/1905.08233](https://arxiv.org/abs/1905.08233)
+    > 来自https://arxiv.org/abs/1905.08233
 
 ***
 
-**Learning from Unpaired Data**
+## Learning from Unpaired Data
 
-> 我们可能要训练这一种网络，训练需要的数据往往成对出现，但是事实上我们的确有一堆，也有一堆，但是两者并不各个匹配成对（unpaired）
+> 我们可能要训练这一种网络，训练需要的数据往往成对出现$(x,y)$，但是事实上我们的确有一堆$x$，也有一堆$y$，但是两者并不各个匹配成对（unpaired）
 >
-> <img src="https://s1.328888.xyz/2022/05/03/hH8d7.png" alt="" data-size="original">
+> ![](https://s1.328888.xyz/2022/05/03/hH8d7.png)
 >
 > 我们有没有办法在这种情况下train呢？（without labels）
 >
@@ -464,19 +482,19 @@ attention机制下的**max or sample**下，尽管数值有在变化而取出来
 
 ![](https://s1.328888.xyz/2022/05/03/hrqRT.png)
 
-将上述流程中的和替换成图片的分布和的图片的分布👇
+将上述流程中的$z$和$y$替换成$Domain \space x$图片的分布和$Domain \space y$的图片的分布👇
 
 ![](https://s1.328888.xyz/2022/05/03/hH2uM.png)
 
-这里指出GAN可以用来寻找域的映射关系：；其中，为一对（pair）数据，这种方法称之为**Unsupervised Conditional Generation**
+这里指出GAN可以用来寻找域的映射关系：$x \rightarrow y$；其中$x$，$y$为一对（pair）数据，这种方法称之为**Unsupervised Conditional Generation**
 
 对应在数据为图像上人物通常是图像风格迁移任务，譬如真人头像-->动漫头像
 
-**Cycle GAN**
+### Cycle GAN
 
 > Cycle GAN，即**循环生成对抗网络**，出自发表于 ICCV17 的论文《Unpaired Image-to-Image Translation using Cycle-Consistent Adversarial Networks》，和它的兄长Pix2Pix（均为朱大神作品）一样，用于图像风格迁移任务。
 
-在原来的GAN里面：可以被sample的一个distribution（不一定是高斯分布）当作丢尽generator，在这个任务中，我们认为可以丢尽一张需要被风格迁移的真人人脸图像，当然还要设计几个discriminator，看到是的图就给高分，不是就给低分。
+在原来的GAN里面：可以被sample的一个distribution（不一定是高斯分布）当作$x$丢尽generator，在这个任务中，我们认为可以丢尽一张需要被风格迁移的真人人脸图像，当然还要设计几个discriminator，看到是$Y \space domain$的图就给高分，不是就给低分。
 
 但是一般的GAN的做法显然是不够的，可能输出会产生二次元头像（discriminator会给高分）但是和输入毫无关系，这不是我们想要的。
 
@@ -484,11 +502,11 @@ attention机制下的**max or sample**下，尽管数值有在变化而取出来
 
 Cycle GAN就是为了解决这个问题的一个巧妙的想法。
 
-它要求训练两个Generator：第一个是把一张的图转换成一张的图；第二个的作用是把上的图**还原**回上的图。经过两次转换后，输入和输出越接近越好（两张图像流形向量的距离来衡量）
+它要求训练两个Generator：第一个$G\_{x\rightarrow y}$是把一张$X \space domain$的图转换成一张$Y \space domain$的图；第二个$G\_{y\rightarrow x}$的作用是把$Y \space domain$上的图**还原**回$X \space domain$上的图。经过两次转换后，输入和输出越接近越好（两张图像流形向量的距离来衡量）
 
 ![](https://s1.328888.xyz/2022/05/03/hHhEZ.png)
 
-两个discriminator：要看想不想真实的人脸
+两个discriminator：$D\_x$要看想不想真实的人脸
 
 相较一般的GAN的优缺点：
 
@@ -497,7 +515,7 @@ Cycle GAN就是为了解决这个问题的一个巧妙的想法。
 * 无法保证输入和输出会真的很像，因为机器可能会学习到一些奇怪的mode（它唯一的限制不过就是第二次还原度较高就行）
 * 事实上，GAN硬做也能做，by default会输出很像的东西
 
-**其他GAN们**
+### 其他GAN们
 
 > 类似于Cycle GAN，用来完成风格迁移任务
 
@@ -511,11 +529,11 @@ Cycle GAN就是为了解决这个问题的一个巧妙的想法。
 
 *   [Star GAN](https://arxiv.org/abs/1711.09020)
 
-    <img src="https://s1.328888.xyz/2022/05/03/hHHAC.png" alt="" data-size="original">
+    ![](https://s1.328888.xyz/2022/05/03/hHHAC.png)
 
 ***
 
-**关于文字风格迁移任务（Text Style Transfer）**
+### 关于文字风格迁移任务（Text Style Transfer）
 
 > seq2seq任务，具体实现和Cycle GAN几乎是一模一样的
 
@@ -530,9 +548,9 @@ Cycle GAN就是为了解决这个问题的一个巧妙的想法。
 
 一些有趣的工作：
 
-* Ducument  summary：Unsupervised Abstractive Summarization（[https://arxiv.org/abs/1810.02851](https://arxiv.org/abs/1810.02851)）
-* Language 1  Lauguage 2：Unsupervised Translation（[https://arxiv.org/abs/1710.04087](https://arxiv.org/abs/1710.04087)、[https://arxiv.org/abs/1710.11041](https://arxiv.org/abs/1710.11041)）
-* Audio  Text：Unsupervised ASR（[https://arxiv.org/abs/1804.00316](https://arxiv.org/abs/1804.00316)、[https://arxiv.org/abs/1812.09323](https://arxiv.org/abs/1812.09323)、[https://arxiv.org/abs/1904.04100](https://arxiv.org/abs/1904.04100)）
+* Ducument $\rightarrow$ summary：Unsupervised Abstractive Summarization（https://arxiv.org/abs/1810.02851）
+* Language 1 $\rightarrow$ Lauguage 2：Unsupervised Translation（https://arxiv.org/abs/1710.04087、https://arxiv.org/abs/1710.11041）
+* Audio $\rightarrow$ Text：Unsupervised ASR（https://arxiv.org/abs/1804.00316、https://arxiv.org/abs/1812.09323、https://arxiv.org/abs/1904.04100）
 
 ***
 

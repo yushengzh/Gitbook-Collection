@@ -1,8 +1,10 @@
 # Lecture 11：机器终生学习 Lifelong Learning
 
-> Lectured by HUNG-YI LEE (李宏毅) Recorded by Yusheng zhao（[yszhao0717@gmail.com](mailto:yszhao0717@gmail.com)）
+> Lectured by HUNG-YI LEE (李宏毅) Recorded by Yusheng zhao（yszhao0717@gmail.com）
 
 ***
+
+\[TOC]
 
 什么是lifelong learning——活到老学到老，这里的主体是人类。类似的，机器也可以做lifelong learning，机器的终身学习非常符合人类对AI的想象。
 
@@ -10,11 +12,11 @@
 
 ![image-20220419133301904](https://s1.328888.xyz/2022/05/04/hzd1i.png)
 
-#### Life Long Learning(LLL)介绍 <a href="#lifelonglearninglll-jie-shao" id="lifelonglearninglll-jie-shao"></a>
+## Life Long Learning(LLL)介绍
 
 > 别称：Continuous Learning、Never Ending Learning、Incremental Learning（增量学习）
 
-**LLL的应用意义**
+### LLL的应用意义
 
 Real-world Applications：开发出一款机器学习模型，模型上线后（online），会得到用户的反馈（feedback）；这时数据集的扩充成为一个新的循环。
 
@@ -22,7 +24,7 @@ Real-world Applications：开发出一款机器学习模型，模型上线后（
 
 机器不断搜集线上的资料，再用线上的资料来更新模型，这本质上就是一个LLL的问题。
 
-**LLL的难点**
+### LLL的难点
 
 * **E.g. 1**：以两个任务举例来说：
 
@@ -46,29 +48,29 @@ Real-world Applications：开发出一款机器学习模型，模型上线后（
 
     There are 20 QA tasks in bAbi corpus.（bAbi是比较古早的QA任务）
 
-    <img src="https://s1.328888.xyz/2022/05/04/hzzBF.png" alt="image-20220419140034287" data-size="original">
+    ![image-20220419140034287](https://s1.328888.xyz/2022/05/04/hzzBF.png)
 
     20个任务就train20个QA模型。一字排开，按序学习。
 
-    <img src="https://s1.328888.xyz/2022/05/04/hzp8W.png" alt="image-20220419140450636" data-size="original">
+    ![image-20220419140450636](https://s1.328888.xyz/2022/05/04/hzp8W.png)
 
     一学新的任务，旧的任务就忘得精光。右边图是机器同时学20个任务的时候，事实上机器可以同时学会多个任务。而让机器依序学习任务时，Machine forget what it has learned when it is learning the new.
 
-    <img src="https://s1.328888.xyz/2022/05/04/hz0Ry.png" alt="image-20220419140738964" data-size="original">
+    ![image-20220419140738964](https://s1.328888.xyz/2022/05/04/hz0Ry.png)
 
-    （我的脑袋和机器的一样┭┮﹏┭┮）——这种现象称之为**Catastrophic Forgetting**
+    （我的脑袋和机器的一样┭┮﹏┭┮）——这种现象称之为==**Catastrophic Forgetting**==
 
-**思考**
+#### 思考
 
 *   多任务学习（Multi-task training）好像比终身学习效果好，那为什么要做终身学习？Multi-task training需要使用所有数据来完成训练，这表明如果任务数量比较多的时候，Multi-task training会导致存储资源压力过大而且加剧运算资源的消耗。（Computation issue & Storage issue）
 
-    <img src="https://s1.328888.xyz/2022/05/04/hzsvk.png" alt="image-20220419141412238" data-size="original">
+    ![image-20220419141412238](https://s1.328888.xyz/2022/05/04/hzsvk.png)
 *   因此，Multi-task training不是做终身学习的最佳选择方式；反之，multi-task learning可以看作是终身学习的upper bound。
 
     在实操过程中，我们在做一个LLL之前，会跑一个相对应的multi-task learning康康LLL的大概上限。我们在LLL上的改进优化，就是为了逼近这个上限结果。
 * LLL的主旨在于“不准复习”的情况下，可不可以减少甚至不遗忘，达到其自身的upper bound。
 
-**为什么不让一个模型学一个任务呢？**
+### 为什么不让一个模型学一个任务呢？
 
 > Train a model for each task.
 
@@ -77,7 +79,7 @@ Real-world Applications：开发出一款机器学习模型，模型上线后（
 * 最终我们无法存储下所有模型（Storage Issue）
 * 不同的任务间知识难以迁移。（Knowledge cannot transfer across different tasks.）
 
-**Lifelong v.s. Transfer**
+### Lifelong v.s. Transfer
 
 > 有人觉得LLL和迁移学习很像嘛，实际上有区别的。
 
@@ -85,82 +87,100 @@ Real-world Applications：开发出一款机器学习模型，模型上线后（
 
 区别：（关注点不同）LLL还要关注原任务上的性能；而迁移学习只关注在新任务上的performance
 
-**如何评估Life Long Learning？（Evaluation）**
+### 如何评估Life Long Learning？（Evaluation）
 
-以[https://arxiv.org/pdf/1904.07734.pdf](https://arxiv.org/pdf/1904.07734.pdf)为例：
+以https://arxiv.org/pdf/1904.07734.pdf为例：
 
 *   首先，我们需要一串tasks，以MNIST为例，这些任务通常都是相关的，但属于不同的domain。
 
-    <img src="https://s1.328888.xyz/2022/05/04/hzcu4.png" alt="image-20220427223341989" data-size="original">
+    ![image-20220427223341989](https://s1.328888.xyz/2022/05/04/hzcu4.png)
 
     把每一个数字用某种固定的规则打乱，形成另一个任务数据集的domain；每一个打乱规则就对应一个task的domain。
 *   评估方法：我们有T个任务。
 
     训练前，随机初始化参数，在T个任务上计算正确率。
 
-    每在第个任务上训练后得到的NN在T个任务上test下，计算得出正确率。最终我们就会得到一个表格👇
+    每在第$i(i=1,2,...,T)$个任务上训练后得到的NN在T个任务上test下，计算得出正确率。最终我们就会得到一个表格👇
 
-    <img src="https://s1.328888.xyz/2022/05/04/hzmDB.png" alt="image-20220427224133665" data-size="original">
+    ![image-20220427224133665](https://s1.328888.xyz/2022/05/04/hzmDB.png)
 
-    在task 上训练后，在task 上的表现。
+    $R\_{i,j}:$在task $i$上训练后，在task $j$上的表现。
 
-    * 如果假设表现不错，表示在未来的任务上训练后在过去任务性能表现良好
-    * 如果这时候，对于机器还没有学会task ，想知道机器是否具有“无师自通”的能力。
+    * 如果$i > j:$假设$R\_{i,j}:$表现不错，表示在未来的任务上训练后在过去任务性能表现良好
+    * 如果$i < j:$这时候，对于$R\_{i,j}$机器还没有学会task $j$，想知道机器是否具有“无师自通”的能力。
 
-这个量度就是把最后一行加起来，做一个平均；来评估一个LLL系统的好坏。
+$$
+Accuracy= \frac{1}{T}\sum^T_{i=1}R_{T,i}
+$$
 
-另外一种评估方法👇
+​ 这个量度就是把最后一行加起来，做一个平均；来评估一个LLL系统的好坏。
 
-这个值通常是负值。相对应的另一种评估方式，再没学时任务T，计算学到任务T-1时任务T上的表现和训练前任务T上的表现之差值。
+​ 另外一种评估方法👇
+
+$$
+Backward \ Transfer = \frac{1}{T-1}\sum^{T-1}_{i=1}(R_{T,i} - R_{i,i})
+$$
+
+​ 这个值通常是负值。相对应的另一种评估方式，再没学时任务T，计算学到任务T-1时任务T上的表现和训练前任务T上的表现之差值。
+
+$$
+Forward \ Transfer = \frac{1}{T-1}\sum^T_{i=2}R_{i-1,i} - R_{0,i}
+$$
+
+​
 
 ![image-20220428101218294](https://s1.328888.xyz/2022/05/04/hCXXk.png)
 
-#### Life Long Learning的几种可能解法（Research Directions） <a href="#lifelonglearning-de-ji-zhong-ke-neng-jie-fa-researchdirections" id="lifelonglearning-de-ji-zhong-ke-neng-jie-fa-researchdirections"></a>
+## Life Long Learning的几种可能解法（Research Directions）
 
-**Selective Synaptic Plasticity（最为完整的一种方法）**
+### ==Selective Synaptic Plasticity==（最为完整的一种方法）
 
 > 可选择的 · 突触的 · 可塑性 ：让NN中部分的联结具备可塑性或者弹性（这种方法也称之为**Regularization Based Approach**）
 
-**为什么Catastrophic Forgetting会发生？**
+#### 为什么Catastrophic Forgetting会发生？
 
 ![image-20220428102022525](https://s1.328888.xyz/2022/05/04/hCfpd.png)
 
-如上图，（颜色：蓝-->白说明loss从小到大。）Task 1和2依次训练：任务一从到；在任务二上，从到。把拿回到task 1上，变现差了（表现出forget的特点）。
+如上图，（颜色：蓝-->白说明loss从小到大。）Task 1和2依次训练：任务一从$\theta^0$到$\theta^b$；在任务二上，从$\theta^b$到$\theta^_$。把$\theta^_$拿回到task 1上，变现差了（表现出forget的特点）。
 
 克服难点的做法：需要对后续任务的梯度下降做一个限制；一方面自身在朝loss下降的方向迭代的时候，另一方面也要考虑到前序任务在这个参数组下的loss的表现。
 
-**Basic Idea：**ome parameters in the model are important to the previous tasks. Only change the unimportant parameters.
+\*\*Basic Idea：\*\*ome parameters in the model are important to the previous tasks. Only change the unimportant parameters.
 
 当我们在学习新的任务时候，希望哪些在旧任务上比较重要的参数尽量不要变；只去改那些不太重要的参数。
 
-已知是模型从前序任务中learned到的参数；每个参数都有一个“保镖（guard）”称之为，我们这样描述loss函数
+已知$\bf{\theta^b}$是模型从前序任务中learned到的参数；每个参数$\theta^b\_i$都有一个“保镖（guard）”称之为$b\_i$，我们这样描述loss函数
 
-这个“保镖”代表这个参数对过去的任务来说重不重要。以上公式中是LLL目前正在学习的任务的loss（Loss for Current task）；二我们真正要去minimize的是（Loss to be Optimized） ；多加的这项中是正在learning的参数，是从前序任务中学习完（learned）的参数（下标i就是第i个参数）。这个我们对表示足够接近的期望（即参数的前序任务表现的重要性）。
+$$
+L'(\theta) = L(\theta) + \lambda \sum_ib_i(\theta_i-\theta^b_i)^2
+$$
+
+这个“保镖”$b\_i$代表这个参数对过去的任务来说重不重要。以上公式中$L(\theta)$是LLL目前正在学习的任务的loss（Loss for Current task）；二我们真正要去minimize的是$L'(\theta)$（Loss to be Optimized） ；多加的这项$\lambda \sum\_ib\_i(\theta\_i-\theta^b\_i)^2$中$\theta\_i$是正在learning的参数，$\theta^b\_i$是从前序任务中学习完（learned）的参数（下标i就是第i个参数）。这个$b\_i$我们对表示$\theta\_i, \theta^b\_i$足够接近的期望（即参数的前序任务表现的重要性）。
 
 并不是所有参数都需要这个约束规定：（有以下两种极端情况）
 
-* 如果，约束失效，即这里对参数而言没有限制，最终导致Catastrophic Forgetting
-* 如果，所有参数都受到约束，换言之总是与相接近甚至相等，最终导致Intransigence（不妥协、不肯让步），实际上没有在新任务上learn的必要了，尽管旧任务上表现良好，但新任务上永远学不好。
+* 如果$b\_i=0$，约束失效，即这里对参数$\theta\_i$而言没有限制，最终导致Catastrophic Forgetting
+* 如果$b\_i= \infin$，所有参数都受到约束，换言之$\theta\_i$总是与$\theta^b\_i$相接近甚至相等，最终导致Intransigence（不妥协、不肯让步），实际上没有在新任务上learn的必要了，尽管旧任务上表现良好，但新任务上永远学不好。
 
-在LLL的技术里面，关键的技术就是我们如何设定，在许多文献当中，都是_人为设定_的。如上任务中就不太可能是learn得到的，为了让公式（4）的loss值越小越好，最终learn出来的结果就是，此时loss就最小了。
+在LLL的技术里面，关键的技术就是我们如何设定$b\_i$，在许多文献当中，$b\_i$都是_人为设定_的。如上任务中$b\_i$就不太可能是learn得到的，为了让公式（4）的loss值越小越好，最终learn出来的结果就是$b\_i=0$，此时loss就最小了。
 
-**如何找到每个参数的重要性度量**
+#### 如何找到每个参数的重要性度量$b\_i$
 
 > 研究的重点
 
-以下图为例，针对任务1，我们从参数集学习得到参数集（颜色越深loss越小）。我们可以针对学习得到的参数集的每个维度的参数做一个“对照实验”，看看参数的变化是否影响到loss的变化。下图中参数集以为例，在上移动，对loss无影响，而在上移动则会使loss急剧增大。
+以下图为例，针对任务1，我们从参数集$\theta^0$学习得到参数集$\theta^b$（颜色越深loss越小）。我们可以针对学习得到的参数集$\theta^b$的每个维度的参数做一个“对照实验”，看看参数的变化是否影响到loss的变化。下图中参数集以$\theta\_1,\theta\_2$为例，在$\theta\_1$上移动，对loss无影响，而在$\theta\_2$上移动则会使loss急剧增大。
 
 ![image-20220428130859210](https://s1.328888.xyz/2022/05/04/hCJMy.png)
 
-由此，我们可以给比较小的值，因为它对模型性能重要性较小；而则设的较大些。从而对模型训练迭代方向产生一定影响。
+由此，我们可以给$\theta\_1$比较小的$b\_1$值，因为它对模型性能重要性较小；而$b\_2$则设的较大些。从而对模型训练迭代方向产生一定影响。
 
 ![image-20220428132325394](https://s1.328888.xyz/2022/05/04/hCiFQ.png)
 
-**E.g.**来自EWC实验真正的结果，task为MNIST permutation：SGD中；L2中；而EMC则给人为设置大小。
+\*\*E.g.\*\*来自EWC实验真正的结果，task为MNIST permutation：SGD中$b\_i=0$；L2中$b\_i=1$；而EMC则给$b\_i$人为设置大小。
 
 ![image-20220428161653043](https://s1.328888.xyz/2022/05/04/hC2y3.png)
 
-**reference**
+#### reference
 
 * [Elastic Weight Consolidation (EWC)](https://arxiv.org/abs/1612.00796)
 * [Synaptic Intelligence (SI)](https://arxiv.org/abs/1703.04200)
@@ -168,25 +188,25 @@ Real-world Applications：开发出一款机器学习模型，模型上线后（
 * [RWalk](https://arxiv.org/abs/1801.10112)
 * [Sliced Cramer Preservation (SCP)](https://openreview.net/forum?id=BJge3TNKwH)
 
-以上都是文献中如何设置的方法。
+以上都是文献中如何设置$b\_i$的方法。
 
 改变任务的顺序会影响方法的正确率
 
-[**Gradient Episodic Memory（GEM）**](https://arxiv.org/abs/1706.08840\[)
+#### [Gradient Episodic Memory（GEM）](https://arxiv.org/abs/1706.08840\[)
 
 > 在梯度上而不是参数上做文章
 
 ![image-20220428162349152](https://s1.328888.xyz/2022/05/04/hChPT.png)
 
-如果在新任务（如task 2）上梯度下降方向和前序任务的梯度下降方向不一致（内积小于0）；则修改该任务上的梯度方向，修改的criterion则是新修改的（inner product）大于0，即两个方向角为锐角（上图所示有点问题）
+如果在新任务（如task 2）上梯度下降方向和前序任务的梯度下降方向不一致（内积小于0）；则修改该任务上的梯度方向，修改的criterion则是新修改的$g'·g^b$（inner product）大于0，即两个方向角为锐角（上图所示有点问题）
 
-劣势：需要把过去任务的资料存下来，因为梯度方向的修正需要之前的梯度方向；所存资料占小部分，只需要计算得到原梯度方向即可
+劣势：需要把过去任务的资料存下来，因为梯度方向的修正需要之前的梯度方向$g^b$；所存资料占小部分，只需要计算得到原梯度方向即可
 
-**Additional Neural Resource Allocation**
+### Additional Neural Resource Allocation
 
 > 改变使用在每个neuron中的resource
 
-**最早的做法：**[**Progressive Neural Networks**](https://arxiv.org/abs/1606.04671)
+#### 最早的做法：[Progressive Neural Networks](https://arxiv.org/abs/1606.04671)
 
 ![image-20220428174552369](https://s1.328888.xyz/2022/05/04/hCAKB.png)
 
@@ -194,7 +214,7 @@ Real-world Applications：开发出一款机器学习模型，模型上线后（
 
 劣势：每一次做一个新的task，模型就会长大；当任务不断新增下去，memory终会耗尽。不过当任务量较少时，这个方法还是合适的。
 
-[**PackNet**](https://arxiv.org/abs/1711.05769)
+#### [PackNet](https://arxiv.org/abs/1711.05769)
 
 ![image-20220428174921074](https://s1.328888.xyz/2022/05/04/hCHh2.png)
 
@@ -202,25 +222,25 @@ Real-world Applications：开发出一款机器学习模型，模型上线后（
 
 先开一个较大的network，对于任务一进来只准使用其中一部分参数（灰色的）；任务二进来只准使用另一部分参数（橘色的）。任务三同理。这个方法局限性也很大，和Progressive Neural Networks一样半斤八两。
 
-**两种方法的结合：**[**Compacting, Picking, and Growing (CPG)**](https://arxiv.org/abs/1910.06562)
+#### 两种方法的结合：[Compacting, Picking, and Growing (CPG)](https://arxiv.org/abs/1910.06562)
 
 ![image-20220428175325052](https://s1.328888.xyz/2022/05/04/hCqYM.png)
 
 既可以增加新的参数，在每一次的task中又只使用部分的参数。
 
-**Memory Reply**
+### Memory Reply
 
 > 非常符合直觉的一种做法
 
 既然我们不能存储过去的资料，那么为何不做一个**generative model**，来生成previous tasks的“数据”（这里称之为pseudo-data），整个做法就是**Generating Data**
 
-> [https://arxiv.org/abs/1705.08690](https://arxiv.org/abs/1705.08690)；[https://arxiv.org/abs/1711.10563](https://arxiv.org/abs/1711.10563)；[https://arxiv.org/abs/1909.03329](https://arxiv.org/abs/1909.03329)
+> https://arxiv.org/abs/1705.08690；https://arxiv.org/abs/1711.10563；https://arxiv.org/abs/1909.03329
 
 ![image-20220428175737545](https://s1.328888.xyz/2022/05/04/hCDM7.png)
 
 用generative model产生任务一的伪资料，在solve task 2阶段，同task 2的资料一起，喂给模型train下去。老师表示，这种generate data方法是非常有效的，甚至可以接近model的upper bound…
 
-**化解task不对称（class数目不一致）的方法**
+### 化解task不对称（class数目不一致）的方法
 
 > 第一、二、三个任务的class数目假如是10、20、100个；遇到这种情况，我们需要对class数目较少的任务**adding new classes**
 
@@ -228,18 +248,18 @@ Real-world Applications：开发出一款机器学习模型，模型上线后（
 
 *   [Learning without forgetting (LwF)](https://arxiv.org/abs/1606.09282)
 
-    <img src="https://s1.328888.xyz/2022/05/04/hClfX.png" alt="image-20220428180555988" data-size="original">
+    ![image-20220428180555988](https://s1.328888.xyz/2022/05/04/hClfX.png)
 *   [iCaRL: Incremental Classifier and Representation Learning](https://arxiv.org/abs/1611.07725)
 
-    <img src="https://s1.328888.xyz/2022/05/04/hCtpZ.png" alt="image-20220428180612240" data-size="original">
+    ![image-20220428180612240](https://s1.328888.xyz/2022/05/04/hCtpZ.png)
 
-#### Life Long Learning其他不同的情景 <a href="#lifelonglearning-qi-ta-bu-tong-de-qing-jing" id="lifelonglearning-qi-ta-bu-tong-de-qing-jing"></a>
+## Life Long Learning其他不同的情景
 
 > 以上只是LLL中的一小块
 
 参考[Three scenarios for continual learning](https://arxiv.org/abs/1904.07734).LLL中又三个情景，以上所述只是其中之一最简单的Scenario。
 
-#### LLL调换task顺序：Curriculum Learning <a href="#lll-tiao-huan-task-shun-xu-curriculumlearning" id="lll-tiao-huan-task-shun-xu-curriculumlearning"></a>
+## LLL调换task顺序：Curriculum Learning
 
 ![image-20220428180823052](https://s1.328888.xyz/2022/05/04/hC5FC.png)
 
@@ -247,7 +267,7 @@ Real-world Applications：开发出一款机器学习模型，模型上线后（
 
 ***
 
-#### Elastic Weight Consolidation（EWC）——可塑权重巩固 <a href="#elasticweightconsolidationewc-ke-su-quan-zhong-gong-gu" id="elasticweightconsolidationewc-ke-su-quan-zhong-gong-gu"></a>
+## Elastic Weight Consolidation（EWC）——可塑权重巩固
 
 不同的task data对model的重要性会不会冲突？如何merge
 

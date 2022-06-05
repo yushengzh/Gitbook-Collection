@@ -1,6 +1,10 @@
 # Lecture 14：元学习（Meta Learning）
 
-> Lectured by HUNG-YI LEE (李宏毅) Recorded by Yusheng zhao（[yszhao0717@gmail.com](mailto:yszhao0717@gmail.com)）
+\[TOC]
+
+### Lecture 14：元学习（Meta Learning）
+
+> Lectured by HUNG-YI LEE (李宏毅) Recorded by Yusheng zhao（yszhao0717@gmail.com）
 
 ***
 
@@ -14,67 +18,71 @@ DeepLearning大部分时间都是在爆调超参数，工业界的方法：大�
 
 > Machine Learning的知识回顾（事实上，meta learning和machine learning没有太大区别） **三个步骤：**（目的：looking for a function）
 >
-> * **step 1：Function with unknown** 其中神经元的权重（weights）和偏置（biases）就是需要学习得到的unknown的参数，用来标识
-> * **step 2：Define loss function** ，其中每一个都是train结果和ground truth之间的距离（如果是分类任务就是交叉熵）
-> * **step 3：Optimization** 找一个使得loss越小越好，即优化任务：. 本课程中都是用梯度下降法来解决这个优化问题，我们得到一组loss足够下的参数组，那么参数带入黑箱函数中，实现我们需要的端到端的任务（输入-输出）
+> * **step 1：Function with unknown** 其中神经元的权重（weights）和偏置（biases）就是需要学习得到的unknown的参数，用$\theta$来标识
+> * **step 2：Define loss function** $L(\theta) = \sum^n\_{i=1}e\_i$，其中每一个$e\_i$都是train结果和ground truth之间的距离（如果是分类任务就是交叉熵）
+> * **step 3：Optimization** 找一个$\theta ^_$使得loss越小越好，即优化任务：$\theta^_ = arg \ \underset{\theta}{min}L(\theta)$. 本课程中都是用梯度下降法来解决这个优化问题，我们得到一组loss足够下的参数组$\theta^_$，那么参数带入黑箱函数$f\_{\theta^_}$中，实现我们需要的端到端的任务（输入-输出）
 
-#### Introduction of Meta Learning <a href="#introduction-of-meta-learning" id="introduction-of-meta-learning"></a>
+#### Introduction of Meta Learning
 
 一个ML算法“简化”来看也是一个function，这个function的输入是一个数据集（training example），输出训练的结果（如果是分类任务）那就是一个classifier；把test set测试集丢进这个classifier中，这个算法的期望当然就是分类正确率越高越好。
 
 ![](https://s3.bmp.ovh/imgs/2022/05/03/03d2380c39bed1df.png)
 
-这个算法通常是Hand-crafted（人想出来的），我们以下借鉴ML的三个步骤来学习这个。
+这个算法$F$通常是Hand-crafted（人想出来的），我们以下借鉴ML的三个步骤来学习这个$F$。
 
 **Step 1**
 
 > ML里边的step 1，其中learnable的是neuron神经元的weight和biases
 
-在meta learning里边可以学出来的东西——_网络架构（Net Architecture）_、_初始化参数（Initial patameters）_、_学习率（Learning Rate）_等。以上之前课程中我们都是人为设置，现在希望使用meta learning来进行学习。
+在meta learning里边可以学出来的东西——_网络架构（Net Architecture）_、_初始化参数（Initial patameters）_、\*学习率（Learning Rate）\*等。以上之前课程中我们都是人为设置，现在希望使用meta learning来进行学习。
 
-* 用  来统称需要元学习的成分（learnable components👆）：_网络架构（Net Architecture）_、_初始化参数（Initial patameters）_、_学习率（Learning Rate）_等
-* 以下都把learning algorithm记作，代表了未知的参数是
+* 用 $\phi$ 来统称需要元学习的成分（learnable components👆）：_网络架构（Net Architecture）_、_初始化参数（Initial patameters）_、\*学习率（Learning Rate）\*等
+* 以下都把learning algorithm记作$F\_\phi$，$\phi$代表了未知的参数是
 *   不同的meta learning的方法其实就是想办法去学不同的component
 
-    Categorize meta learning based on what is learnable&#x20;
+    Categorize meta learning based on what is learnable $\Rightarrow \ \phi$
 
 **Step 2**
 
-* 针对_**learning algorithm**_ 定义_**loss function**_ 这个loss function记作，如果比较小，说明这个比较好。![image-20220516211820383](https://s1.328888.xyz/2022/05/21/dqtCS.png)
-* 我们用训练任务（training tasks）来作为训练资料喂给meta learning的模型。如下图
+* 针对_**learning algorithm**_ $F\_\phi$定义_**loss function**_ 这个loss function记作$L(\phi)$，如果$L(\phi)$比较小，说明这个$F(\phi)$比较好。![image-20220516211820383](https://s1.328888.xyz/2022/05/21/dqtCS.png)
+* 我们用训练任务（training tasks）来作为训练资料喂给meta learning的模型$F\_\phi$。如下图
 
 ![](https://s1.328888.xyz/2022/05/21/dq5bR.png)
 
 如上，以训练二元分类器为例，每个任务里面都有训练资料和测试资料。
 
-*   定义：把某一个任务的资料拿出来丢给learning algorithm ，输出一个具体的分类器（output），任务一的classifier记作
+*   定义$L(\phi)$：把某一个任务的资料拿出来丢给learning algorithm $F\_\phi$，输出一个具体的分类器（output），任务一的classifier记作$\Large f\_{\theta^{1\*\}}$
 
-    <img src="https://s1.328888.xyz/2022/05/21/dqlXA.png" alt="" data-size="original">
-* 确定classifer的性能好坏：用任务的测试资料对该分类器进行评估
+    ![](https://s1.328888.xyz/2022/05/21/dqlXA.png)
+* 确定classifer$\Large f\_{\theta^{1\*\}}$的性能好坏：用任务的测试资料对该分类器进行评估
 
 ![](https://s1.328888.xyz/2022/05/21/dqzyi.png)
 
-如上图，测试资料丢进这个classifier做一个prediction，计算（预测和ground truth）交叉熵统统加起来得到
+​ 如上图，测试资料丢进这个classifier做一个prediction，计算（预测和ground truth）交叉熵统统加起来得到$l^1$
 
 *   类似如上过程，用其他任务来确定各自的classifier（这个例子中meta learning只有两个任务）
 
-    <img src="https://s1.328888.xyz/2022/05/21/dqCdv.png" alt="" data-size="original">
+    ![](https://s1.328888.xyz/2022/05/21/dqCdv.png)
 
-    在任务一和任务二的表现分别为  和 ，将两者加起来，得到总loss为，对于n个任务的meta learning来说
+    在任务一和任务二的表现分别为 $l^1$ 和 $l^2$，将两者加起来，得到总loss为$l^1 + l^2$，对于n个任务的meta learning来说
+
+    $$
+    L(\phi) = \sum_{i=1}^nl^i
+    $$
 
     > 在一般的ML中，我们用训练资料计算loss，而在meta Learning中我们用测试资料来计算loss。这是因为meta learning的训练单位是“training task”，换言之，评估meta learning的性能是基于“testing task”上表现如何，在单一训练单元（tasks）上，计算loss可以采用测试资料。而typical ML的评估则是根据测试资料上的结果，因而不能用测试资料来计算loss。
     >
-    > <img src="https://s1.328888.xyz/2022/05/21/dqpK0.png" alt="" data-size="original">
+    > ![](https://s1.328888.xyz/2022/05/21/dqpK0.png)
 
 **Step 3**
 
-* 对于learning algorithm已知loss function
-* 本步骤目的：找到一个去minimize，即优化问题：
+* 对于learning algorithm$F(\phi)$已知loss function$L(\phi) = \sum\_{i=1}^nl^i$
+* 本步骤目的：找到一个$\phi$去minimize$L(\phi)$，即优化问题：$\phi^\* = arg \ \underset{\phi}{min} \ L(\phi)$
 * 解这个优化问题
-  * 如果知道loss对偏导，即易于计算，那就用梯度下降
+  * 如果知道loss对$\phi$偏导，即$\large \frac{\part L}{\part \phi}$易于计算，那就用梯度下降
   * 经常的情况，在meta里边，loss的偏导不易于计算。这时候需要**Reinforcement Learning**硬train一发，或者用进化算法（Evolutionary Algorithm）
 
-经过以上三步，最终我们learned出来一个learning algorithm。
+经过以上三步，最终我们learned出来一个learning algorithm$F\_\phi$。
 
 **总结：meta learning的框架**
 
@@ -86,7 +94,7 @@ DeepLearning大部分时间都是在爆调超参数，工业界的方法：大�
 >
 > 对于整个meta learning的框架而言“training data”指的就是training task，具体到testing task中，“training data”指的就是learning algorithm用在testing task所做ML任务的常规意义的训练数据。
 
-#### 比较：Machine Learning v.s. Meta Learning <a href="#bi-jiao-machinelearningvsmetalearning" id="bi-jiao-machinelearningvsmetalearning"></a>
+#### 比较：Machine Learning v.s. Meta Learning
 
 > 以下若干方面的比较
 
@@ -94,7 +102,7 @@ DeepLearning大部分时间都是在爆调超参数，工业界的方法：大�
 
 ![](https://s1.328888.xyz/2022/05/21/dq7AF.png)
 
-典型的ML任务是为了找到一个black-box的目标函数，而Meta则是为了找到能找到这个目标函数的优化方法。
+典型的ML任务是为了找到一个black-box的目标函数，而Meta则是为了找到能找到这个目标函数$f$的优化方法$F$。
 
 **Training Data**
 
@@ -120,7 +128,7 @@ ML：一个任务中，不同数据单元的loss之和；Meta：一把任务，�
 
 **training过程**
 
-要算每个任务的，需要经过一次**Within-task Training**、一次**within-task testing**
+要算每个任务的$l$，需要经过一次**Within-task Training**、一次**within-task testing**
 
 ![](https://s1.328888.xyz/2022/05/21/dq3y3.png)
 
@@ -134,15 +142,15 @@ ML：一个任务中，不同数据单元的loss之和；Meta：一把任务，�
 * learning algorithm中的也有许多超参数，该死居然还有调参……套娃爆调参（😟难道meta不就是为了新任务新模型不浪费时间调参麽）
 *   Development task 😊（\~\~类比development set）
 
-    > **开发集（development set）**用于调整参数，选择特征，以及对学习算法作出其它决定。有时也称为**留出交叉验证集（hold-out cross validation set）**。在supervised ML中经常用于确定网络结构或者控制模型复杂程度的参数。
+    > **开发集（development set）用于调整参数，选择特征，以及对学习算法作出其它决定。有时也称为留出交叉验证集（hold-out cross validation set）**。在supervised ML中经常用于确定网络结构或者控制模型复杂程度的参数。
 
     很多meta的论文实际上都没有使用development task（用来调整learning algorithm的复杂程度），或许这也是可以做一做的点。
 
-#### 实例说明：learning algorithm中哪些是可以被“学习”的？ <a href="#shi-li-shuo-ming-learningalgorithm-zhong-na-xie-shi-ke-yi-bei-xue-xi-de" id="shi-li-shuo-ming-learningalgorithm-zhong-na-xie-shi-ke-yi-bei-xue-xi-de"></a>
+#### 实例说明：learning algorithm中哪些是可以被“学习”的？
 
 > 在梯度下降中：我们有一个Network Structure；根据training data不断更新梯度，直到得到满意的结果。
 >
-> <img src="https://s1.328888.xyz/2022/05/21/dqKl4.png" alt="" data-size="original">
+> ![](https://s1.328888.xyz/2022/05/21/dqKl4.png)
 >
 > 以上，初始化参数是可以被学习的。
 
@@ -158,14 +166,12 @@ ML：一个任务中，不同数据单元的loss之和；Meta：一把任务，�
 
         需要调参，random seed
 
-        <img src="https://s1.328888.xyz/2022/05/21/dqOKB.png" alt="" data-size="original">
+        ![](https://s1.328888.xyz/2022/05/21/dqOKB.png)
     *   联想到Pre-training、lifelong learnig和transfer learning
 
         在MAML里面，通过一把子训练任务找到好的init，最后用在测试任务上。在self-supervised learning里面（也有类似的做法），在proxy tasks上训练，最后用在测试数据，譬如BERT就是做句子的填空、也有一些工作可以做图像像素的填空（masking）。~~kaiming的MAE一样的思路~~
 
-        <img src="https://s1.328888.xyz/2022/05/21/dqaPT.png" alt="" data-size="original">
-
-        <img src="https://s1.328888.xyz/2022/05/21/dqnh2.png" alt="" data-size="original">
+        ![](https://s1.328888.xyz/2022/05/21/dqaPT.png) ![](https://s1.328888.xyz/2022/05/21/dqnh2.png)
 
         两者的不同包括：pre-training用unlabelled的资料，而MAML训练用到labelled资料。早期的self-supervised learning实际上会把所有资料放一块训练一个model，这种方法也称之为多任务学习（multi-task learning）
     * 我们甚至可以认为不同的任务就是不同的domain，那我们在不同的任务上的meta learning是一种解决domain adaptation的方法。~~DA更是一个问题而非方法，尝试解决这个问题的方法有很多…~~
@@ -175,7 +181,7 @@ ML：一个任务中，不同数据单元的loss之和；Meta：一把任务，�
 
     > Aniruddh Raghu, Maithra Raghu, Samy Bengio, Oriol Vinyals, Rapid Learning or Feature Reuse? Towards Understanding the Effectiveness of MAML, ICLR, 2020
     >
-    > <img src="https://s1.328888.xyz/2022/05/21/dq1YM.png" alt="" data-size="original">
+    > ![](https://s1.328888.xyz/2022/05/21/dq1YM.png)
     >
     > Feature Reuse是MAML效果好的关键。
 * [Reptile](https://arxiv.org/abs/1803.02999)
@@ -199,13 +205,13 @@ ML：一个任务中，不同数据单元的loss之和；Meta：一把任务，�
 
 ![](https://s1.328888.xyz/2022/05/21/dqZpZ.png)
 
-把Network Structure当作，不过无法计算。
+把Network Structure当作$\phi$，不过$∇\_𝜙𝐿(𝜙)$无法计算。
 
 * 没法算微分——用Reinforcement Learning硬做或许阔以。
 
 > 阅读材料有： Barret Zoph, et al., Neural Architecture Search with Reinforcement Learning, ICLR 2017 Barret Zoph, et al., Learning Transferable Architectures for Scalable Image Recognition, CVPR, 2018 Hieu Pham, et al., Efficient Neural Architecture Search via Parameter Sharing, ICML, 2018
 
-An agent uses a set of actions to determine the network architecture. 待学习的  就是agent的参数，则就是去maximize的reward。用RL硬train一发…示例如下
+An agent uses a set of actions to determine the network architecture. 待学习的 $\phi$ 就是agent的参数，则$-L(\phi)$就是去maximize的reward。用RL硬train一发…示例如下
 
 ![](https://s1.328888.xyz/2022/05/21/dqjFC.png)
 
@@ -217,7 +223,7 @@ An agent uses a set of actions to determine the network architecture. 待学习�
 
     > Hanxiao Liu, et al., DARTS: Differentiable Architecture Search, ICLR, 2019
     >
-    > <img src="https://s1.328888.xyz/2022/05/21/dq6Gg.png" alt="" data-size="original">
+    > ![](https://s1.328888.xyz/2022/05/21/dq6Gg.png)
 
 **Data Processing**
 
@@ -225,7 +231,7 @@ An agent uses a set of actions to determine the network architecture. 待学习�
 
 *   学Data Augmentation，让machine自动学如何数据增强
 
-    <img src="https://s1.328888.xyz/2022/05/21/dqNOt.png" alt="" data-size="original">
+    ![](https://s1.328888.xyz/2022/05/21/dqNOt.png)
 
     > 阅读材料：
     >
@@ -238,7 +244,7 @@ An agent uses a set of actions to determine the network architecture. 待学习�
 
 **Beyond GD（待填的坑）**
 
-以上的方法都还是基于gradient descent所做的方法，学出来的component。在GD之外，不妨让整个network的参数作为，彻底跑去梯度下降，发明新的优化算法（learning algorithm）；目前有些研究往这个方向进展……（给的一个坑，填填填）
+以上的方法都还是基于gradient descent所做的方法，学出来的component。在GD之外，不妨让整个network的参数作为$\phi$，彻底跑去梯度下降，发明新的优化算法（learning algorithm）；目前有些研究往这个方向进展……（给的一个坑，填填填）
 
 > 可参考阅读Andrei A. Rusu, Dushyant Rao,Raia Hadsell, Meta-Learning with Latent Embedding Optimization, ICLR, 2019
 
@@ -250,7 +256,7 @@ An agent uses a set of actions to determine the network architecture. 待学习�
 
 👆这种方法已有了，详细可去了解**Learning to compare**(metric-based approach)
 
-#### 应用 <a href="#ying-yong" id="ying-yong"></a>
+#### 应用
 
 **用meta learning实现few shot learning**
 
@@ -273,4 +279,4 @@ Split your characters into training and testing characters
 
 ![image-20220521181309039](https://s1.328888.xyz/2022/05/21/dDQfm.png)
 
-来自[http://speech.ee.ntu.edu.tw/\~tlkagk/meta\_learning\_table.pdf](http://speech.ee.ntu.edu.tw/\~tlkagk/meta\_learning\_table.pdf)
+来自http://speech.ee.ntu.edu.tw/\~tlkagk/meta\_learning\_table.pdf

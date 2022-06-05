@@ -1,14 +1,16 @@
 # Lecture 10：强化学习（Reinforcement Learning）
 
-### Lecture 10：Introduction to Deep Reinforcement Learning（RL） <a href="#lecture-10introduction-to-deep-reinforcement-learningrl" id="lecture-10introduction-to-deep-reinforcement-learningrl"></a>
+\[TOC]
 
-> Lectured by HUNG-YI LEE (李宏毅) Recorded by Yusheng Zhao（[yszhao0717@gmail.com](mailto:yszhao0717@gmail.com)）
+### Lecture 10：Introduction to Deep Reinforcement Learning（RL）
+
+> Lectured by HUNG-YI LEE (李宏毅) Recorded by Yusheng Zhao（yszhao0717@gmail.com）
 
 ***
 
 > 之前的Lecture基本都是基于Supervised Learning，supervised learning通常基于labelled的数据，但是有些场景，譬如下围棋玩游戏，对于下一步的决策如何是未知的（假设machine是尝试无师自通，不看棋谱）。当我们收集有label的资料很困难的时候，我们可能就需要考虑RL。RL的方法下，机器会和环境做互动，会得到奖励，一般称之为reward…（actor就是agent，可能有不同表述）
 
-#### What is RL ?（3 steps in ML） <a href="#what-is-rl-3-steps-in-ml" id="what-is-rl-3-steps-in-ml"></a>
+#### What is RL ?（3 steps in ML）
 
 > 通常的介绍RL课程会从马尔可夫决策过程 (**Markov Decision Process**，MDP)引入。这里稍有不同，从ML类比引入。
 
@@ -60,11 +62,11 @@ network的架构有我们自行设计，对于以上这种任务，我们只要�
 
 _**Step 2：Define “Loss”**_
 
-actor和environment交互的场景：初始的游戏画面作为observation 让actor产生一个输出action ，从environment获得reward ，这致使environment产生新的observation ，其让actor产生输出，从environment中获得…获得…周而复始该过程，直到机器采取某个action（达成某种游戏结束的条件），game over。
+actor和environment交互的场景：初始的游戏画面作为observation $s\_1$让actor产生一个输出action $a\_1$，从environment获得reward $r\_1$，这致使environment产生新的observation $s\_2$，其让actor产生输出$a\_2$，从environment中获得$r\_2$…获得$r\_T$…周而复始该过程，直到机器采取某个action（达成某种游戏结束的条件），game over。
 
 ![image-20220522194900218](https://s1.328888.xyz/2022/05/26/lbwbW.png) ![image-20220522195035642](https://s1.328888.xyz/2022/05/26/lbKyy.png)
 
-从游戏开始到结束整一个过程就称之为_**episode**_，一个episode会得到一个_total reward_：，在一些文献中，这个total reward也称之为_return_。ok，我们决定了这个优化目标——maximize the total reward（or minimize the minus total reward）
+从游戏开始到结束整一个过程就称之为\*\*\*episode\*\*_，一个episode会得到一个_total reward\*：$R = \sum^T\_{t=1}r\_t$，在一些文献中，这个total reward也称之为_return_。ok，我们决定了这个优化目标——maximize the total reward（or minimize the minus total reward）$Loss \ Function \sim -R $
 
 _**Step 3：Optimization**_
 
@@ -72,63 +74,75 @@ Actor-Env交互流程如下
 
 ![image-20220522200447929](https://s1.328888.xyz/2022/05/26/lbOdk.png)
 
-我们把序列称之为**Trajectory**。Reward（作为一个function）其输出同时取决于action和observation，即；这个问题的优化目标可以写为
+我们把序列$\tau = {s\_1,a\_1,s\_2,a\_2,\dots}$称之为**Trajectory**。Reward（作为一个function）其输出同时取决于action和observation，即$r\_i = R(s\_i,a\_i)$；这个问题的优化目标可以写为
 
-整个optimization的问题可以描述为找一个network（或者train出一组参数）放在actor位置，可以让  的值越大越好。
+$$
+R(\tau) = \sum^T_{t=1}r_t
+$$
+
+整个optimization的问题可以描述为找一个network（或者train出一组参数）放在actor位置，可以让 $R$ 的值越大越好。
 
 > 如果环境是已知的，reward就是已知的；反之，reward也属于black-box function，或许也需要被train出来。
 
 关键在于，RL和一般的ML有一些不同（这也造成了RL做optimization的困难）
 
-* Actor的输出是有随机性的，例如对于同样的，sample出来的可能不一样
+* Actor的输出是有随机性的，例如对于同样的$s\_1$，sample出来的$a\_1$可能不一样
 * Environment和Reward都是black-box的，根本不知道里面发生了什么，对于外界而言这部分就是end-to-end的…
 * Environment或者Reward都可能也具备随机性
 
-RL的难点就是如何解决这个optimization的问题，如何设计自动化方法来maximize这个
+RL的难点就是如何解决这个optimization的问题，如何设计自动化方法来maximize这个$R$
 
 类比GAN（异曲同工之妙，有相似，也有不一样的地方），Actor就像是Generator，Env和Reward就是Discriminator，优化目标就是调整Generator的参数让Discriminator越大越好。不一样的地方在于，GAN里面Discriminator也是一个NN（我们可以GD来train），而Env和Reward是黑盒子而不是network，不能用梯度下降方法来train它。
 
-> ，优化目标就是让越小越好。
+> $-R=Loss$，优化目标就是让$-R$越小越好。
 >
 > 在之前的Deep Learning中Random\_Seed的随机性体现在training当中，每次train的时候init的参数会不一样，而在RL中所谓Actor在testing当中就已经有随机性了。（我们拿train好的actor去测试环境，即便相同的输入通常会用不同的输出）
 
-#### Policy Gradient <a href="#policy-gradient" id="policy-gradient"></a>
+#### Policy Gradient
 
 > 拿来解RL做optimization的一个常用的演算法
 
 **如何操控一个actor的输出**
 
-目标：当给定一个特定的observation  时就输出或不输出一个给定的action 。
+目标：当给定一个特定的observation $s$ 时就输出或不输出一个给定的action $\hat{a}$。
 
-可行的一种方法：做一个supervised learning，将收集的作为label（ground truth），设计loss函数计算和之间的交叉熵，当作一般的监督学习处理（如下图）
+可行的一种方法：做一个supervised learning，将收集的$\hat{a}$作为label（ground truth），设计loss函数计算$a$和$\hat{a}$之间的交叉熵，当作一般的监督学习处理（如下图）
 
 ![image-20220522213547426](https://s1.328888.xyz/2022/05/26/lbaKd.png)
 
-给定期望采取，给定期望不要采取——对交叉熵尽量小，对交叉熵尽量大。设计loss函数
+给定$s$期望采取$\hat{a}$，给定$s'$期望不要采取$\hat{a}'$——对$(a,\hat{a})$交叉熵尽量小，对$(a,\hat{a}')$交叉熵尽量大。设计loss函数$L = e\_1 - e\_2$
 
 ![image-20220522215302078](https://s1.328888.xyz/2022/05/26/lbkPQ.png)
 
-藉由监督学习的做法来操纵actor的输出。期望actor不采取意味着期望actor采取除此之外的其他action（不一定是什么都不做）。在某一个环境下，我们也可以让某个actor既期望做某个action，又不期望做另外一个action（或许会出现矛盾的情形？）。
+藉由监督学习的做法来操纵actor的输出。期望actor不采取$\hat{a}'$意味着期望actor采取除此之外的其他action（不一定是什么都不做）。在某一个环境下，我们也可以让某个actor既期望做某个action，又不期望做另外一个action（或许会出现矛盾的情形？）。
 
-以上部分，比较重要的部分就是收集资料/标签。从最简单做和不做（binary problem）处理，事实上对数据标签更多的是范围模糊化，即，给期望量化出一个分值。处理方式的改变对损失函数的设计也稍有不同。（如下图）
+以上部分，比较重要的部分就是收集资料/标签。从最简单做和不做（binary problem）处理，事实上对数据标签更多的是范围模糊化，即${-1,1}\to\[-k,k]$，给期望量化出一个分值。处理方式的改变对损失函数的设计也稍有不同。（如下图）
+
+$$
+L =+e_1-e_2+e_3-\dots+e_N \to L = \sum A_n e_n
+$$
 
 ![image-20220522220046512](https://s1.328888.xyz/2022/05/26/lb1A3.png) ![image-20220522220057423](https://s1.328888.xyz/2022/05/26/lbbY4.png)
 
-后面的处理是一样的，train出这个。而难点在于如何定红框中的；以及我们该如何产生这样的pair呢？
+后面的处理是一样的，train出这个$\theta^\*$。而难点在于如何定红框中的$A\_i,i-1,2,\dots,N$；以及我们该如何产生$(s\_i,\hat{a}\_i)$这样的pair呢？
 
-上右图中通常是我们制作数据集的一种方式，，整个流程和监督学习相差无二，以下陈述如何确定Action的分数（权值），不同的RL方法通常就是在上面做文章，完全可以以问题为导向，大胆假设，对进行合理的定义。
+上右图中通常是我们制作数据集的一种方式，$e\_i = corss \ entropy(s\_i,\hat{a}\_1)$，整个流程和监督学习相差无二，以下陈述如何确定Action的分数（权值）$A$，不同的RL方法通常就是在$A$上面做文章，完全可以以问题为导向，大胆假设，对$A$进行合理的定义。
 
-**如何得到？ Version 0：**_**immediate reward**_
+**如何得到$A$？ Version 0：**_**immediate reward**_
 
-*   首先需要收集一些训练资料：pair。我们用actor去跟环境做互动，记录actor产生的和。这个actor我们可以认为是随机的
+*   首先需要收集一些训练资料：pair$(s\_i,\hat{a}\_i)$。我们用actor去跟环境做互动，记录actor产生的$s$和$a$。这个actor我们可以认为是随机的
 
-    <img src="https://s1.328888.xyz/2022/05/26/lbF6B.png" alt="image-20220523121931884" data-size="original">
+    ![image-20220523121931884](https://s1.328888.xyz/2022/05/26/lbF6B.png)
 
-    我们把输入给actor所得到的都统统记录下来。通常我们会做多个episode，以收集足够多的资料。我们再评估这些记录，来标记这些结果是好还是不好，标记为
+    我们把输入$s$给actor所得到的$a$都统统记录下来。通常我们会做多个episode，以收集足够多的资料。我们再评估这些记录，来标记这些结果是好还是不好，标记为$A\_i,i=1,2,\dots,N$
 
-    <img src="https://s1.328888.xyz/2022/05/26/lbZXT.png" alt="image-20220523122356942" data-size="original">
+    ![image-20220523122356942](https://s1.328888.xyz/2022/05/26/lbZXT.png)
 
-    最简单的评估的方法：假设在某个输入给actor，他采取了记录中对应的action ，假如reward是正向的（positive），那么说明这个action可能更倾向于是好的。 因此可以认为的取值和reward的输出是成正比的，所以直接让
+    最简单的评估的方法：假设在某个$s$输入给actor，他采取了记录中对应的action $a$，假如reward是正向的（positive），那么说明这个action可能更倾向于是好的。 因此可以认为$A$的取值和reward的输出是成正比的，所以直接让
+
+    $$
+    A_i=r_i, \ i = 1,2,\dots,N
+    $$
 
 这个version 0是一个短视近利的actor（Short-sighted Version），完全没有长远规划。
 
@@ -137,31 +151,39 @@ RL的难点就是如何解决这个optimization的问题，如何设计自动化
   * _Reward Delay_：正如珍珑棋局虚竹的神之一手，要想获得长远的利益（long-term reward）甚至有必要牺牲眼前蝇头小利（immediate reward）。以上述Atari游戏为例，为了击杀alien，同时需要飞船不断的左右移动调整。
   * 在version 0中，space invader游戏中，正向的action只有开火，而左右移动都不被鼓励。最后的结果就是学会的玩家只会无脑开火。
 
-**如何得到？ Version 1：**_**cumulated reward**_
+**如何得到$A$？ Version 1：**_**cumulated reward**_
 
-*   对于所有observation ，针对各自action ，只考虑其序列之后的所有情况。该方法称之为_cumulated reward_
+*   对于所有observation ${s\_1,s\_2,s\_3,\dots,s\_N}$，针对各自action ${a\_1,a\_2,a\_3,\dots,a\_N}$，只考虑其序列之后的所有情况。该方法称之为\*cumulated reward\*
 
-    <img src="https://s1.328888.xyz/2022/05/26/lbjp2.png" alt="image-20220523140317258" data-size="original">
+    ![image-20220523140317258](https://s1.328888.xyz/2022/05/26/lbjp2.png)
 
     如上图所示，~~（感觉有点马尔可夫的影子了hhh）~~
+
+    $$
+    A_i = G_i = \sum^N_{n=i}r_n, \ i = 1,2,\dots,N
+    $$
 * version 1的结果可以让左右移动（sapce invader游戏）也有正向的鼓励。
-* 局限性：考虑，对于action 真的会的最后的的结果产生重要的影响吗？简而言之，version 1缺点在于“管的太宽了”，一刀切让每个action都对后面所有reward结果产生影响。
+* 局限性：考虑$A\_1 = G\_1= r\_1+ r\_2+ \dots + r\_N$，对于action $a\_1$真的会的最后的$r\_N$的结果产生重要的影响吗？简而言之，version 1缺点在于“管的太宽了”，一刀切让每个action都对后面所有reward结果产生影响。
 
-**如何得到？ Version 2：**_**discounted cumulated reward**_
+**如何得到$A$？ Version 2：**_**discounted cumulated reward**_
 
-* 针对以上这个局限性，做一个改进：设定一个discount factor ，让，通常会打个九折或九九折。如此一来，对的影响力就微乎其微了。
+*   针对以上这个局限性，做一个改进：设定一个discount factor $\gamma<1$，让$A\_1 = G\_1' = r\_1 + \gamma r\_2 + \gamma^2 r\_3 + \dots + \gamma^{N-1} r\_N$，通常会打个九折或九九折。如此一来，$a\_1$对$r\_N$的影响力就微乎其微了。
 
-> 形如是一个step，或者说是一笔资料。一个episode是由许多个observation和action共同组成的。
+    $$
+    A_i = G_i' = \sum^N_{n=i}\gamma ^{n-i}r_n, \ i = 1,2,\dots,N
+    $$
 
-**如何得到？ Version 3：**_**discounted cumulated reward with normalization**_
+> 形如${s,a}$是一个step，或者说是一笔资料。一个episode是由许多个observation和action共同组成的。
+
+**如何得到$A$？ Version 3：**_**discounted cumulated reward with normalization**_
 
 > 好和坏、Reward是相对的，我们需要对分数设计做一个标准化。
 
 有些游戏中只能拿到大于等于0的分数，这会导致误判一些action是好的，这就需要标准化reward。以下介绍几种方法：
 
-*   最简单的一种方法：每个分数标记/权重减去一个常数，在文献中通常称之为"Baseline"。
+*   最简单的一种方法：每个分数标记/权重减去一个常数$b$，$b$在文献中通常称之为"Baseline"。
 
-    <img src="https://s1.328888.xyz/2022/05/26/lbvbM.png" alt="image-20220523143124263" data-size="original">
+    ![image-20220523143124263](https://s1.328888.xyz/2022/05/26/lbvbM.png)
 
     让一些分数较高（偏正面的）的值为正，让一些偏负面的值为负。具体如何设定这个baseline之后会讲到。
 
@@ -171,21 +193,21 @@ RL的难点就是如何解决这个optimization的问题，如何设计自动化
 
 步骤描述如下：
 
-* 随机初始化Actor（通常是NN）的参数
-* 开始train，整个training iteration&#x20;
-  * 使用actor 去跟环境做互动
-  * 收集到数据对
-  * 对数据进行评价，计算——最关键的一步，上述给出了4中计算reward的方式
-  * 解优化问题（最大化reward），计算损失函数
-  * ，其中是学习率（learning rate），梯度下降
+* 随机初始化Actor（通常是NN）的参数$\theta^0$
+* 开始train，整个training iteration $i = 1 \to T:$
+  * 使用actor $\theta^{i-1}$去跟环境做互动
+  * 收集到数据对$ {𝑠\_1,𝑎\_1} , {𝑠\_2,𝑎\_2} ,..., {𝑠\_𝑁,𝑎\_𝑁}$
+  * 对数据进行评价，计算$A\_1,A\_2,\dots,A\_N$——最关键的一步，上述给出了4中计算reward的方式
+  * 解优化问题（最大化reward），计算损失函数$L$
+  * $\theta^{i-1} - 𝜂∇L \to \theta^{i}$，其中$𝜂$是学习率（learning rate），梯度下降
 
 和一般的deep learning不同的是，DL中训练资料或测试资料相对于迭代过程通常是静态的；而Policy Gradient的过程表明在RL中收集资料在迭代过程中完成；迭代多少次，就要收集资料多少次。事实上在RL中，每个循环（loop）中梯度下降是只能更新一次（如下图所示）；更新完一次参数，又得下去重新收集一次数据。
 
 ![image-20220523162350387](https://s1.328888.xyz/2022/05/26/lbMy7.png)
 
-每次更新一次模型参数。都需要重新收集整个训练数据。的决策（actions）不一定对有用。
+每次更新一次模型参数。都需要重新收集整个训练数据。$\theta^{i-1}$的决策（actions）不一定对$\theta^{i}$有用。
 
-原因在于每次数据都是actor（某个状态时，每个状态都是一个actor ）和环境交互得来的，不同状态的actor的数据对很可能是完全相反的（譬如说对于同一个action的评价…），总而言之，one‘s drug could be one’s poison，同一个action对于不同的actor而言，它的评价是不一样的.（这里老师举了“棋魂”的例子，orz我没康过）
+原因在于每次数据都是actor（某个状态时，每个状态都是一个actor $\theta$）和环境交互得来的，不同状态的actor的数据对很可能是完全相反的（譬如说对于同一个action的评价…），总而言之，one‘s drug could be one’s poison，同一个action对于不同的actor而言，它的评价是不一样的.（这里老师举了“棋魂”的例子，orz我没康过）
 
 所以说在RL做梯度下降非常费时间。
 
@@ -193,9 +215,9 @@ RL的难点就是如何解决这个optimization的问题，如何设计自动化
 
 * _**On-policy**_：训练的actor和交互的actor是同一个
 * _**Off-policy**_：训练的actor和交互的actor可以不是同一个
-  *   在off-policy的learning中显而易见的好处：可以想办法拿的actor的策略来训练的actor
+  *   在off-policy的learning中显而易见的好处：可以想办法拿$\theta^{i-1}$的actor的策略来训练$\theta^i$的actor
 
-      <img src="https://s1.328888.xyz/2022/05/26/lbNlX.png" alt="image-20220523165445176" data-size="original">
+      ![image-20220523165445176](https://s1.328888.xyz/2022/05/26/lbNlX.png)
 
       在这个方法下，我们不用每次update梯度后就重新收集全面数据。
   * 非常经典的一种off-policy的做法：_Proximal Policy Optimization (PPO)_（~~貌似还挺有趣的😄，之后自行了解叭~~）
@@ -215,23 +237,23 @@ RL的难点就是如何解决这个optimization的问题，如何设计自动化
 
 exploration就是RL中比较常见的一个trick，让actor去尝试尽量不同的action，否则很有可能会train不出好的结果。
 
-#### Actor-Critic <a href="#actor-critic" id="actor-critic"></a>
+#### Actor-Critic
 
 以上讲述的RL都是去learn一个actor，而这部分就是讲述RL如何去learn一个critic
 
 **什么是Critic ？**
 
-所谓critic：给定一个参数组，评估这个actor看到某个observation （采取对应的action ）后它能得到多少的reward
+所谓critic：给定一个参数组$\theta$，评估这个actor看到某个observation $s$（采取对应的action $a$）后它能得到多少的reward
 
-critic实例介绍 _**Value Function**_ ：当参数组为的actor看到observation  后，接下来它得到的_discounted cumulated reward_（见上version 3）：
+critic实例介绍== _**Value Function $V^\theta(s)$**_==：当参数组为$\theta$的actor看到observation $s$ 后，接下来它得到的\*discounted cumulated reward\*（见上version 3）：$G\_1' = r\_1 + \gamma r\_2 + \gamma^2 r\_3 + \dots$
 
-通常得玩完整场游戏才会知道，Value Function要做的事情就是在中间过程预测这个
+通常$G'$得玩完整场游戏才会知道，Value Function要做的事情就是在中间过程预测这个$G'$
 
 ![image-20220524135926172](https://s1.328888.xyz/2022/05/26/lboPC.png)
 
-函数的输入为  ，上标  表明其观察的对象为参数组为的actor，是函数，输出一个标量（scalar）。
+函数的输入为 $s$ ，上标 $\theta$ 表明其观察的对象为参数组为$\theta$的actor，$V^\theta$是函数，输出一个标量（scalar）。
 
-输出结果的解释：当画面中alien数量较多，value function对得分期望较大，而alien数量较少时（游戏的末尾段），此时对reward的期望较小。除此之外，注意到value function的结果时跟观察的对象（actor）有关系的，再以该游戏为例，如果actor比较菜（alien多的时候actor很容易被杀死），此时可能结果比较低。
+输出结果的解释：当画面中alien数量较多，value function对$G'$得分期望较大，而alien数量较少时（游戏的末尾段），此时对reward的期望较小。除此之外，注意到value function的结果时跟观察的对象（actor）有关系的，再以该游戏为例，如果actor比较菜（alien多的时候actor很容易被杀死），此时可能$V^\theta(s)$结果比较低。
 
 **Critic是如何被训练出来的？**
 
@@ -239,11 +261,11 @@ critic实例介绍 _**Value Function**_ ：当参数组为的actor看到observat
 
 **Monte-Carlo（MC） based approach**
 
-Actor和环境做互动，会得到游戏的一些记录。 当actor看到（sample到）observation  时，接下来的_discounted cumulated reward_就期望是。如下图所示，在MC机制下，当函数给出输入为时，其输出应该要和越接近越好。
+Actor和环境做互动，会得到游戏的一些记录。 当actor看到（sample到）observation $s\_a$ 时，接下来的\*discounted cumulated reward\*就期望是$G\_a'$。如下图所示，在MC机制下，当函数$V^\theta$给出输入为$s\_a$时，其输出$V^\theta(s\_a)$应该要和$G\_a'$越接近越好。
 
 ![image-20220524160540122](https://s1.328888.xyz/2022/05/26/lbEhg.png)
 
-MC方法非常符合直觉，我们通过了解actor决策并得到reward（玩完整场游戏）从而获取一笔训练资料，直接拿这些训练资料来train我们的critic 。
+MC方法非常符合直觉，我们通过了解actor决策并得到reward（玩完整场游戏）从而获取一笔训练资料，直接拿这些训练资料来train我们的critic $V^\theta$。
 
 **Temporal-difference (TD) approach**
 
@@ -251,19 +273,27 @@ MC方法非常符合直觉，我们通过了解actor决策并得到reward（玩�
 
 TD机制下，我们要获得
 
-这样一个序列。解释：actor看到，执行，获得reward记作
+$$
+\dots s_t,a_t,r_t,s_{t+1},\dots
+$$
 
-只需要看到这样一个序列（部分），我们就能拿来更新的参数了（train价值函数）。这个方法的好处在于：与MC方法相对比，后者需要做完整场游戏方能获得一笔训练资料；事实上，一些现实任务中（游戏）可能持续时间比较长（甚至可能永不结束），在这个情景下，我们更倾向于使用TD的方法。
+这样一个序列。解释：actor看到$s\_t$，执行$a\_t$，获得reward记作$r\_t$
 
-以下详细说明TD方法如何在部分序列情况下训练函数（更新参数）
+只需要看到这样一个序列（部分），我们就能拿来更新$V^{\pi}(s)$的参数了（train价值函数）。这个方法的好处在于：与MC方法相对比，后者需要做完整场游戏方能获得一笔训练资料；事实上，一些现实任务中（游戏）可能持续时间比较长（甚至可能永不结束），在这个情景下，我们更倾向于使用TD的方法。
 
-将看到之后的reward记作以此类推显然可以得到和的关系：
+以下详细说明TD方法如何在部分序列情况下训练$V^\theta$函数（更新参数）
+
+将看到$s\_t$之后的reward记作$V^\theta(s\_t) = r\_t + \gamma r\_{t+1} + \gamma^2 r\_{t+2}...$以此类推$V^\theta(s\_{t+1}) = r\_{t+1} + \gamma r\_{t+2} + \gamma^2 r\_{t+3}...$显然可以得到$V^\theta(s\_{t+1}) $和$V^\theta(s\_{t})$的关系：
+
+$$
+V^\theta(s_{t}) = \gamma V^\theta(s_{t+1}) + r_t
+$$
 
 当我们获得公式（6）这样一串序列，train的时候使其尽量满足公式（7），如下所示
 
-![](https://s1.328888.xyz/2022/05/26/lbxMt.png)&#x20;
+![](https://s1.328888.xyz/2022/05/26/lbxMt.png) $\Rightarrow V^\theta(s\_{t}) - \gamma V^\theta(s\_{t+1}) \leftrightarrow r\_t$
 
-换言之，已知一笔资料，同时知道，我们train的目标就是使得和越接近越好。这就是TD方法，用来train出价值函数的未知参数
+换言之，已知一笔资料$r\_t$，同时知道$s\_t,s\_{t+1}$，我们train的目标就是使得$V^\theta(s\_{t}) - \gamma V^\theta(s\_{t+1})$和$r\_t$越接近越好。这就是TD方法，用来train出价值函数的未知参数$\theta$
 
 **MC v.s. TD**
 
@@ -271,33 +301,37 @@ TD机制下，我们要获得
 
 ![image-20220524190406777](https://s1.328888.xyz/2022/05/26/lFUfe.png)
 
-这里假设无视action，然后设置（不做discount），，而或者——前一个答案是按MC方法的得到的，后者则是TD方法算出来的。MC方法给出的前提假设就是两者有联系，而在TD中两者无关联。
+这里假设无视action，然后设置$\gamma=1$（不做discount），$V^\theta(s\_b) = \frac{3}{4}$，而$V^\theta(s\_a) = 0$或者$\frac{3}{4}$——前一个答案是按MC方法的得到的，后者则是TD方法算出来的。MC方法给出的前提假设就是$s\_a,s\_b$两者有联系，而在TD中两者无关联。
 
 **Critic 如何应用在action的训练当中？**
 
 **version 3.5**
 
-上文已经给出了如何得到评估的version 3.
+上文已经给出了如何得到评估$A$的version 3.
 
 ![image-20220524191506591](https://s1.328888.xyz/2022/05/26/lFepO.png)
 
-在critic中，把state 打入中输出，我们把当作，得
+在critic中，把state $s$打入$V^\theta$中输出$V^\theta(s)$，我们把$V^\theta(s)$当作$b$，得
 
 ![image-20220524194046341](https://s1.328888.xyz/2022/05/26/lFuFq.png)
 
-根据左边的训练资料可以learn出一个critic，然后这个critic产生出一个state，输入到价值函数中，然后利用输出值（分数）进行标准化。针对数据对，我们有
+根据左边的训练资料可以learn出一个critic，然后这个critic产生出一个state，输入到价值函数中，然后利用输出值（分数）进行标准化。针对数据对${s\_t, a\_t}$，我们有
+
+$$
+A_t = G_t' - V^\theta(s_t)
+$$
 
 来定义对训练数据中对决策的评估。
 
 ![image-20220524194723640](https://s1.328888.xyz/2022/05/26/lFGyP.png)
 
-当看到时，不一定会执行这个action，actor的输出实际上是一个的distribution（action的概率空间上，每个action都会有几率，不断sample空间里的action）因此，对于同一个会有不同的（cumulative reward without discount），把这些可能的结果平均起来就是。
+当看到$s\_t$时，不一定会执行$a\_t$这个action，actor的输出实际上是一个的distribution（action的概率空间上，每个action都会有几率，不断sample空间里的action）因此，对于同一个$s\_t$会有不同的$G$（cumulative reward without discount），把这些可能的结果平均起来就是$V^\theta(s\_t)$。
 
-所谓，即在前提下执行后一路玩下去最后得到一个reward就是
+所谓$G\_t'$，即在$s\_t$前提下执行$a\_t$后一路玩下去最后得到一个reward就是$G\_t'$
 
 ![image-20220524201828742](https://s1.328888.xyz/2022/05/26/lFglm.png)
 
-如果，说明，这时候说明上图中的是要比上上图中random sample到的所有（action）都要好（比平均水准好）；反之，若，则说明，即这时候在游戏中属于低于平均水平的下策。以上简单直觉的解释了为什么要按公式(8)来计算。
+如果$A\_t>0$，说明$G\_t'>V^\theta(s\_t)$，这时候说明上图中的$a\_t$是要比上上图中random sample到的所有$a$（action）都要好（比平均水准好）；反之，若$A\_t<0$，则说明$G\_t'\<V^\theta(s\_t)$，即这时候$a\_t$在游戏中属于低于平均水平的下策。以上简单直觉的解释了为什么要按公式(8)来计算$A$。
 
 这里的version 3.5是拿一个sample出来的action下的reward减去按distribution去random sample出来action下的平均的reward。以下陈述version 4，与用sample减去平均的不同，其用平均的减去平均的。
 
@@ -307,25 +341,29 @@ TD机制下，我们要获得
 
 ![image-20220524202614393](https://s1.328888.xyz/2022/05/26/lF9OA.png)
 
-当看到，执行完后就跑到下一个场景，然后在这个场景下，去构成一个action的distribution，类似的，把cumulative reward平均起来得到期望的reward为，那么从出发总的期望的reward为
+当看到$s\_t$，执行完$a\_t$后就跑到下一个场景$s\_{t+1}$，然后在这个场景下，去构成一个action的distribution，类似的，把cumulative reward平均起来得到期望的reward为$V^\theta(s\_{t+1})$，那么从$s\_t$出发总的期望的reward为$r\_t+V^\theta(s\_{t+1})$
 
-因此，针对数据对，我们有
+因此，针对数据对${s\_t, a\_t}$，我们有
 
-这个过程很像是对照实验，以减号为界分成两项，前一项时看到去采取后再去sample一些action的reward总和，后一项则是看到没有采取这个action就直接去sample一些action的期望reward，两者之差作为来评估action 的好坏。显然地，越大说明这个action  越好。（这方法很符合直觉啊。。owo）
+$$
+A_t = r_t + V^\theta(s_{t+1}) - V^\theta(s_t)
+$$
+
+这个过程很像是对照实验，以减号为界分成两项，前一项时看到$s\_t$去采取$a\_t$后再去sample一些action的reward总和，后一项则是看到$s\_t$没有采取$a\_t$这个action就直接去sample一些action的期望reward，两者之差作为$A\_t$来评估action $a\_t$的好坏。显然地，$A\_t$越大说明这个action $a$ 越好。（这方法很符合直觉啊。。owo）
 
 **Actor-Critic的小tip**
 
 > tricks for homework ^ o ^：让actor和critic共用一部分网络/参数
 
-Actor是一个network，输出为游戏的画面，输出每一个action的分数（类似分类器）；critic也是一个network，输出是一个数值（scalar），代表接下来得到的cumulative reward。如下图，这两个network有着同样的输入，它们应该有部分的参数是可以共用的。俩网络都需要理解输入的游戏画面，所以其共用前面几个layer（前部的network）
+Actor是一个network，输出为游戏的画面，输出每一个action的分数（类似分类器）；critic也是一个network，输出是一个数值（scalar），代表接下来得到的cumulative reward。如下图，这两个network有着同样的输入，它们应该有部分的参数是可以共用的。俩网络都需要理解输入的游戏画面$s$，所以其共用前面几个layer（前部的network）
 
 ![image-20220524215235021](https://s1.328888.xyz/2022/05/26/lFXhR.png)
 
 **other notices**
 
-在RL中sample的好不好（非常重要）关系到最后能不能train好，通常sample的越丰富越好。 critic中的就相当于一般生（average grades），超过它这个action就是好，低于它就是捞。
+在RL中sample的好不好（非常重要）关系到最后能不能train好，通常sample的越丰富越好。 critic中的$V^\theta$就相当于一般生（average grades），超过它这个action就是好，低于它就是捞。
 
-关于actor的distribution: actor这个网络的输出类似于一个分类器（每个action对应一个值），那对这个结果做一个normalization，每个action就对应一个几率，critic计算的actor就按照这个几率的distribution来sample一些action
+关于actor的distribution: actor这个网络的输出类似于一个分类器（每个action对应一个值），那对这个结果做一个normalization，每个action就对应一个几率，critic计算$A$的actor就按照这个几率的distribution来sample一些action
 
 **\*outlook: Deep Q Network（DQN)**
 
@@ -333,11 +371,11 @@ Actor是一个network，输出为游戏的画面，输出每一个action的分�
 
 ~~【学习DQN，此处待拔草owo】~~
 
-#### Reward Shaping <a href="#reward-shaping" id="reward-shaping"></a>
+#### Reward Shaping
 
 > When reward is sparse
 
-目前为止，我们理解的RL就是把actor（agent）拿去和环境互动，然后得到一堆reward，对reward做一些处理（version 1\~4）得到这边的分数（见公式9），用来教actor该做些什么（actions）。但是，在一些实际的情景中，多数的时候reward都是0，只有非常低的几率得到非0的正向的reward，这种现象称之为_**Sparse Reward**_。此时，在以上所设计的评估体制下，training data的大部分几乎每个action的评估都是差不多的（不知道是好是坏），这种情况下很难去train好我们的actor。（e.g. 教机械臂拧螺丝，以上述思路设计reward，大概率根本train不出来，小概率是巧合）
+目前为止，我们理解的RL就是把actor（agent）拿去和环境互动，然后得到一堆reward，对reward做一些处理（version 1\~4）得到这边的分数$A$（见公式9），用$A$来教actor该做些什么（actions）。但是，在一些实际的情景中，多数的时候reward都是0，只有非常低的几率得到非0的正向的reward，这种现象称之为_**Sparse Reward**_。此时，在以上所设计的评估体制下，training data的大部分几乎每个action的评估都是差不多的（不知道是好是坏），这种情况下很难去train好我们的actor。（e.g. 教机械臂拧螺丝，以上述思路设计reward，大概率根本train不出来，小概率是巧合）
 
 ![image-20220525210631842](https://s1.328888.xyz/2022/05/26/lFfTi.png)
 
@@ -347,7 +385,7 @@ Sparse Reward的现象和对弈很像，整个过程中几乎不会得到正向�
 
 **Reward Shaping 实例：在Vsidoom游戏的情景下**
 
-> Visdoom：FPS游戏，被当作某AI比赛的场景（Visual Doom AI Competition @ CIG 2016），rk1的文章[https://openreview.net/forum?id=Hk3mPK5gg¬eId=Hk3mPK5gg](https://openreview.net/forum?id=Hk3mPK5gg\&noteId=Hk3mPK5gg)
+> Visdoom：FPS游戏，被当作某AI比赛的场景（Visual Doom AI Competition @ CIG 2016），rk1的文章https://openreview.net/forum?id=Hk3mPK5gg\&noteId=Hk3mPK5gg
 
 这篇文章用了reward shaping的概念。
 
@@ -359,11 +397,11 @@ Sparse Reward的现象和对弈很像，整个过程中几乎不会得到正向�
 
 **Reward shaping - Curiosity**
 
-> curiosity based reward shaping. 来自[https://arxiv.org/abs/1705.05363](https://arxiv.org/abs/1705.05363)
+> curiosity based reward shaping. 来自https://arxiv.org/abs/1705.05363
 
 这种方法假设给machine加上“好奇心”，当actor看到**new** but **meaningful** thing时就得到积极的reward
 
-#### No Reward: Learning from Demonstration <a href="#no-reward-learning-from-demonstration" id="no-reward-learning-from-demonstration"></a>
+#### No Reward: Learning from Demonstration
 
 > 如果reward都没有，该怎么去做RL
 
@@ -374,7 +412,7 @@ Sparse Reward的现象和对弈很像，整个过程中几乎不会得到正向�
 
     这种机制不好的例子👇（阿西莫夫三大定律-->“机械公敌”出现的场景：为了保护人类-->把人类圈禁起来？？）
 
-    <img src="https://s1.328888.xyz/2022/05/26/lF2f0.png" alt="image-20220526093006587" data-size="original">
+    ![image-20220526093006587](https://s1.328888.xyz/2022/05/26/lF2f0.png)
 
     有时候，人为设计的rewar不一定时最好的。
 
@@ -384,17 +422,17 @@ Sparse Reward的现象和对弈很像，整个过程中几乎不会得到正向�
 
 ![image-20220526093319384](https://s1.328888.xyz/2022/05/26/lF80J.png)
 
-在IL里面，假设actor仍然会和环境做互动，不过没有reward。但是我们可以建立“expert的示范”，例如说我们可以找很多人类，让人类也跟环境做互动，把这些记录下来就叫做expert 示范，将其记作  。actor就可以根据  来进行学习。
+在IL里面，假设actor仍然会和环境做互动，不过没有reward。但是我们可以建立“expert的示范”，例如说我们可以找很多人类，让人类也跟环境做互动，把这些记录下来就叫做expert 示范，将其记作 $\tau$ 。actor就可以根据 $\tau$ 来进行学习。
 
-我们有，其中每个  都是expert的trajectory，譬如说：针对自动驾驶有人类司机的驾驶记录、train机械臂前人类拉着机械臂手动规划路径
+我们有${\hat{\tau}\_1,\hat{\tau}\_2,...,\hat{\tau}\_K}$，其中每个 $\hat{\tau}$ 都是expert的trajectory，譬如说：针对自动驾驶有人类司机的驾驶记录、train机械臂前人类拉着机械臂手动规划路径
 
 **实例**
 
-IL非常像supervised learning，以自动驾驶为例： 有人类驾驶员记录作为expert示范：，就是实时道路场景，就是人类司机面向场景采取的行为。
+IL非常像supervised learning，以自动驾驶为例： 有人类驾驶员记录作为expert示范：$\hat{\tau} = {s\_1, \hat{a}\_1,s\_2,\hat{a}\_2,...}$，$s$就是实时道路场景，$\hat{a}$就是人类司机面向场景采取的行为。
 
 ![image-20220526101539150](https://s1.328888.xyz/2022/05/26/lFAFF.png)
 
-最简单直接的想法：让machine去模仿人类的行为，machine给出的action为越接近人类行为越好，这种做法称之为_Behavior Cloning_。
+最简单直接的想法：让machine去模仿人类的行为，machine给出的action为$a\_i$越接近人类行为$\hat{a}\_i$越好，这种做法称之为_Behavior Cloning_。
 
 这种只让machine去完全模仿人类的行为的做法会有几个问题：
 
@@ -426,11 +464,11 @@ _Details：_
 
     这个流程很像GAN: Actor：“生成器”；Reward function：“判别器”
 
-    <img src="https://s1.328888.xyz/2022/05/26/lFHty.png" alt="image-20220526110624098" data-size="original">
+    ![image-20220526110624098](https://s1.328888.xyz/2022/05/26/lFHty.png)
 
     IRL框架流程和GAN的对比，有异曲同工之妙
 
-    <img src="https://s1.328888.xyz/2022/05/26/lFqOk.png" alt="image-20220526110919794" data-size="original">
+    ![image-20220526110919794](https://s1.328888.xyz/2022/05/26/lFqOk.png)
 
 IRL技术通常会应用在训练机械臂。人类手把手教machine如何做对应任务，然后通过IRL技术train机械臂来学会任务。
 
